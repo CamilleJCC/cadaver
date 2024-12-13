@@ -3,7 +3,11 @@ body {
   margin: 0;
   padding: 0;
 }
-
+.p5Canvas {
+    width: auto !important;
+    height: 904px !important;
+    margin: 0 auto;
+}
 canvas {
   display: flex;
   align-content: center;
