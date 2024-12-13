@@ -3,9 +3,7 @@ body {
   margin: 0;
   padding: 0;
 }
-.p5Canvas {
-  width: 100vw !important;
-}
+
 canvas {
   display: flex;
   align-content: center;
