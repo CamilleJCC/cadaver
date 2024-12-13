@@ -48,7 +48,7 @@ function preload(){
 }
   
 function setup() {
-    createCanvas(904, 904);  // Reduced to one column
+    createCanvas(200, 400);  // Reduced to one column
     background(100);
     displayCadaver();  // Display the initial cadaver
 }
