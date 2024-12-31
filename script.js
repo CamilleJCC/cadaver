@@ -20,7 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.lineJoin = 'round';
         ctx.lineWidth = 3;
         drawSectionGuides();
-        showPreviousSections();
     }
 
     function startDrawing(e) {
@@ -44,9 +43,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const y = (e.clientY - rect.top) * scaleY;
         
         const sectionHeight = canvas.height / 3;
-        const currentSectionY = (currentSection - 1) * sectionHeight;
+        const sectionTop = (currentSection - 1) * sectionHeight;
+        const sectionBottom = sectionTop + sectionHeight;
         
-        if (y >= currentSectionY && y <= currentSectionY + sectionHeight) {
+        if (y >= sectionTop && y <= sectionBottom) {
             ctx.strokeStyle = currentColor;
             ctx.lineTo(x/2, y/2);
             ctx.stroke();
@@ -56,22 +56,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function drawSectionGuides() {
-        const sectionHeight = canvas.height / 6;
+        const sectionHeight = canvas.height / 3;
         ctx.save();
         ctx.setLineDash([5, 5]);
         ctx.strokeStyle = '#c4e0ff';
         
-        if (currentSection === 1) {
-            ctx.beginPath();
-            ctx.moveTo(0, sectionHeight);
-            ctx.lineTo(canvas.width, sectionHeight);
-            ctx.stroke();
-        } else if (currentSection === 2) {
-            ctx.beginPath();
-            ctx.moveTo(0, sectionHeight * 3);
-            ctx.lineTo(canvas.width, sectionHeight * 3);
-            ctx.stroke();
-        }
+        ctx.beginPath();
+        ctx.moveTo(0, sectionHeight);
+        ctx.lineTo(canvas.width, sectionHeight);
+        ctx.moveTo(0, sectionHeight * 2);
+        ctx.lineTo(canvas.width, sectionHeight * 2);
+        ctx.stroke();
+        
         ctx.restore();
     }
 
@@ -82,36 +78,41 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function showPreviousSections() {
-        sectionImages.forEach((imgData, index) => {
-            if (imgData && index < currentSection - 1) {
+    function showFinalCreation() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const sectionHeight = canvas.height / 3;
+        
+        sectionImages.forEach((imgData, i) => {
+            if (imgData) {
                 const img = new Image();
                 img.onload = () => {
-                    ctx.globalAlpha = 0.3;
-                    ctx.drawImage(img, 0, index * (canvas.height/3), canvas.width, canvas.height/3);
-                    ctx.globalAlpha = 1.0;
+                    ctx.drawImage(img, 0, i * sectionHeight, canvas.width, sectionHeight);
+                    if (i === totalSections - 1) {
+                        setTimeout(createMagicalCelebration, 500);
+                    }
                 };
                 img.src = imgData;
             }
         });
     }
 
-    function showFinalCreation() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        let loadedImages = 0;
+    function createMagicalCelebration() {
+        const celebration = document.createElement('div');
+        celebration.className = 'celebration-overlay';
+        celebration.innerHTML = `
+            <div class="celebration-message">
+                ¡Tu cadáver exquisito está completo! ✨
+                <div class="celebration-buttons">
+                    <button class="restart-btn">Crear otro</button>
+                    <button class="save-btn">Guardar creación</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(celebration);
         
-        sectionImages.forEach((imgData, index) => {
-            if (imgData) {
-                const img = new Image();
-                img.onload = () => {
-                    ctx.drawImage(img, 0, index * (canvas.height/3), canvas.width, canvas.height/3);
-                    loadedImages++;
-                    if (loadedImages === totalSections) {
-                        createMagicalCelebration();
-                    }
-                };
-                img.src = imgData;
-            }
+        celebration.querySelector('.restart-btn').addEventListener('click', () => {
+            celebration.remove();
+            resetGame();
         });
     }
 
@@ -126,23 +127,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function createMagicalCelebration() {
-        const celebration = document.createElement('div');
-        celebration.className = 'celebration-overlay';
-        celebration.innerHTML = `
-            <div class="celebration-message">
-                ¡Tu cadáver exquisito está completo! ✨
-                <button class="restart-btn">Crear otro</button>
-            </div>
-        `;
-        document.body.appendChild(celebration);
-        
-        celebration.querySelector('.restart-btn').addEventListener('click', () => {
-            celebration.remove();
-            resetGame();
-        });
-    }
-
     function resetGame() {
         currentSection = 1;
         sectionImages.fill(null);
@@ -152,6 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector('.next-btn').textContent = 'Siguiente ✨';
     }
 
+    // Event Listeners
     colorPicker.addEventListener('input', (e) => {
         currentColor = e.target.value;
         ctx.strokeStyle = currentColor;
@@ -161,7 +146,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelector('.clear-btn').addEventListener('click', () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         drawSectionGuides();
-        showPreviousSections();
         createSparkles(document.querySelector('.clear-btn'));
     });
 
@@ -171,7 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
             currentSection++;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             drawSectionGuides();
-            showPreviousSections();
             updatePagination();
             
             if (currentSection === totalSections) {
@@ -189,6 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
     canvas.addEventListener('mouseout', stopDrawing);
     window.addEventListener('resize', setCanvasSize);
 
+    // Initialize
     setCanvasSize();
     updatePagination();
 });
