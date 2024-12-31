@@ -9,18 +9,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const totalSections = 3;
     const sectionImages = new Array(totalSections).fill(null);
 
-  function setCanvasSize() {
-    const frame = canvas.parentElement;
-    canvas.width = frame.offsetWidth * 1.5; // Smaller width
-    canvas.height = 800 * 2; // Taller height
-    canvas.style.width = `${frame.offsetWidth * 0.75}px`;
-    canvas.style.height = '800px';
-    ctx.scale(2, 2);
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.lineWidth = 3;
-    drawSectionGuides();
-}
+    function setCanvasSize() {
+        const frame = canvas.parentElement;
+        canvas.width = frame.offsetWidth * 1.5;
+        canvas.height = 800 * 2;
+        canvas.style.width = `${frame.offsetWidth * 0.75}px`;
+        canvas.style.height = '800px';
+        ctx.scale(2, 2);
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.lineWidth = 3;
+        drawSectionGuides();
+        showPreviousSections();
+    }
 
     function startDrawing(e) {
         isDrawing = true;
@@ -74,6 +75,46 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.restore();
     }
 
+    function updatePagination() {
+        const dots = document.querySelectorAll('.page-dot');
+        dots.forEach((dot, index) => {
+            dot.classList.toggle('active', index + 1 === currentSection);
+        });
+    }
+
+    function showPreviousSections() {
+        sectionImages.forEach((imgData, index) => {
+            if (imgData && index < currentSection - 1) {
+                const img = new Image();
+                img.onload = () => {
+                    ctx.globalAlpha = 0.3;
+                    ctx.drawImage(img, 0, index * (canvas.height/3), canvas.width, canvas.height/3);
+                    ctx.globalAlpha = 1.0;
+                };
+                img.src = imgData;
+            }
+        });
+    }
+
+    function showFinalCreation() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let loadedImages = 0;
+        
+        sectionImages.forEach((imgData, index) => {
+            if (imgData) {
+                const img = new Image();
+                img.onload = () => {
+                    ctx.drawImage(img, 0, index * (canvas.height/3), canvas.width, canvas.height/3);
+                    loadedImages++;
+                    if (loadedImages === totalSections) {
+                        createMagicalCelebration();
+                    }
+                };
+                img.src = imgData;
+            }
+        });
+    }
+
     function createSparkles(element) {
         for (let i = 0; i < 20; i++) {
             const sparkle = document.createElement('div');
@@ -83,20 +124,6 @@ document.addEventListener('DOMContentLoaded', () => {
             element.appendChild(sparkle);
             setTimeout(() => sparkle.remove(), 1000);
         }
-    }
-
-    function showFinalCreation() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        sectionImages.forEach((imgData, index) => {
-            if (imgData) {
-                const img = new Image();
-                img.onload = () => {
-                    ctx.drawImage(img, 0, index * (canvas.height/3), canvas.width, canvas.height/3);
-                };
-                img.src = imgData;
-            }
-        });
-        createMagicalCelebration();
     }
 
     function createMagicalCelebration() {
@@ -121,30 +148,31 @@ document.addEventListener('DOMContentLoaded', () => {
         sectionImages.fill(null);
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         drawSectionGuides();
+        updatePagination();
         document.querySelector('.next-btn').textContent = 'Siguiente ✨';
     }
 
-    // Color picker event listener
     colorPicker.addEventListener('input', (e) => {
         currentColor = e.target.value;
         ctx.strokeStyle = currentColor;
         createSparkles(colorPicker);
     });
 
-    // Clear canvas button
     document.querySelector('.clear-btn').addEventListener('click', () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         drawSectionGuides();
+        showPreviousSections();
         createSparkles(document.querySelector('.clear-btn'));
     });
 
-    // Next section button
     document.querySelector('.next-btn').addEventListener('click', () => {
         if (currentSection < totalSections) {
             sectionImages[currentSection - 1] = canvas.toDataURL();
             currentSection++;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             drawSectionGuides();
+            showPreviousSections();
+            updatePagination();
             
             if (currentSection === totalSections) {
                 document.querySelector('.next-btn').textContent = 'Finalizar ✨';
@@ -154,71 +182,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         createSparkles(document.querySelector('.next-btn'));
     });
-    // Add these functions to your existing JavaScript
-function updatePagination() {
-    const dots = document.querySelectorAll('.page-dot');
-    dots.forEach((dot, index) => {
-        dot.classList.toggle('active', index + 1 === currentSection);
-    });
-}
 
-function showPreviousSections() {
-    // Draw previous sections in lighter color
-    sectionImages.forEach((imgData, index) => {
-        if (imgData && index < currentSection - 1) {
-            const img = new Image();
-            img.onload = () => {
-                ctx.globalAlpha = 0.3;
-                ctx.drawImage(img, 0, index * (canvas.height/3), canvas.width, canvas.height/3);
-                ctx.globalAlpha = 1.0;
-            };
-            img.src = imgData;
-        }
-    });
-}
-
-// Modify your existing functions
-function setCanvasSize() {
-    const frame = canvas.parentElement;
-    canvas.width = frame.offsetWidth * 1.5;
-    canvas.height = 800 * 2;
-    canvas.style.width = `${frame.offsetWidth * 0.75}px`;
-    canvas.style.height = '800px';
-    ctx.scale(2, 2);
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.lineWidth = 3;
-    drawSectionGuides();
-    showPreviousSections();
-}
-
-// Update the next button click handler
-document.querySelector('.next-btn').addEventListener('click', () => {
-    if (currentSection < totalSections) {
-        sectionImages[currentSection - 1] = canvas.toDataURL();
-        currentSection++;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        drawSectionGuides();
-        showPreviousSections();
-        updatePagination();
-        
-        if (currentSection === totalSections) {
-            document.querySelector('.next-btn').textContent = 'Finalizar ✨';
-        }
-    } else {
-        showFinalCreation();
-    }
-    createSparkles(document.querySelector('.next-btn'));
-});
-
-
-    // Event listeners
     canvas.addEventListener('mousedown', startDrawing);
     canvas.addEventListener('mousemove', draw);
     canvas.addEventListener('mouseup', stopDrawing);
     canvas.addEventListener('mouseout', stopDrawing);
     window.addEventListener('resize', setCanvasSize);
 
-    // Initialize
     setCanvasSize();
+    updatePagination();
 });
