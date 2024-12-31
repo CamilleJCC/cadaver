@@ -53,6 +53,30 @@ p {
     display: flex;
     gap: 10px;
 }
+.color-palette {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.color-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.color-btn:hover {
+    transform: scale(1.1);
+}
+
+.color-btn.active {
+    border: 2px solid #c4e0ff;
+    transform: scale(1.1);
+}
+
 
 .color-btn {
     width: 40px;
