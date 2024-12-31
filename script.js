@@ -152,6 +152,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         createSparkles(document.querySelector('.next-btn'));
     });
+    // Add this to your existing JavaScript
+const colorButtons = document.querySelectorAll('.color-btn');
+
+colorButtons.forEach(btn => {
+    const color = btn.dataset.color;
+    btn.style.backgroundColor = color;
+    
+    btn.addEventListener('click', () => {
+        // Remove active class from all buttons
+        colorButtons.forEach(button => button.classList.remove('active'));
+        // Add active class to clicked button
+        btn.classList.add('active');
+        // Set current color
+        currentColor = color;
+        createSparkles(btn);
+    });
+});
+
 
     // Event listeners
     canvas.addEventListener('mousedown', startDrawing);
