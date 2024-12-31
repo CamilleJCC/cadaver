@@ -49,15 +49,40 @@ p {
     gap: 20px;
 }
 
-.color-picker {
-    display: flex;
-    gap: 10px;
-}
 .color-palette {
     display: flex;
-    gap: 10px;
+    align-items: center;
+    gap: 15px;
     margin-bottom: 20px;
 }
+
+#colorPicker {
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    background: none;
+    cursor: pointer;
+}
+
+#colorPicker::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+#colorPicker::-webkit-color-swatch {
+    border: 2px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.selected-color {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
 
 .color-btn {
     width: 30px;
