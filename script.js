@@ -154,6 +154,63 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         createSparkles(document.querySelector('.next-btn'));
     });
+    // Add these functions to your existing JavaScript
+function updatePagination() {
+    const dots = document.querySelectorAll('.page-dot');
+    dots.forEach((dot, index) => {
+        dot.classList.toggle('active', index + 1 === currentSection);
+    });
+}
+
+function showPreviousSections() {
+    // Draw previous sections in lighter color
+    sectionImages.forEach((imgData, index) => {
+        if (imgData && index < currentSection - 1) {
+            const img = new Image();
+            img.onload = () => {
+                ctx.globalAlpha = 0.3;
+                ctx.drawImage(img, 0, index * (canvas.height/3), canvas.width, canvas.height/3);
+                ctx.globalAlpha = 1.0;
+            };
+            img.src = imgData;
+        }
+    });
+}
+
+// Modify your existing functions
+function setCanvasSize() {
+    const frame = canvas.parentElement;
+    canvas.width = frame.offsetWidth * 1.5;
+    canvas.height = 800 * 2;
+    canvas.style.width = `${frame.offsetWidth * 0.75}px`;
+    canvas.style.height = '800px';
+    ctx.scale(2, 2);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = 3;
+    drawSectionGuides();
+    showPreviousSections();
+}
+
+// Update the next button click handler
+document.querySelector('.next-btn').addEventListener('click', () => {
+    if (currentSection < totalSections) {
+        sectionImages[currentSection - 1] = canvas.toDataURL();
+        currentSection++;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawSectionGuides();
+        showPreviousSections();
+        updatePagination();
+        
+        if (currentSection === totalSections) {
+            document.querySelector('.next-btn').textContent = 'Finalizar ✨';
+        }
+    } else {
+        showFinalCreation();
+    }
+    createSparkles(document.querySelector('.next-btn'));
+});
+
 
     // Event listeners
     canvas.addEventListener('mousedown', startDrawing);
