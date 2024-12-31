@@ -9,18 +9,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const totalSections = 3;
     const sectionImages = new Array(totalSections).fill(null);
 
-    function setCanvasSize() {
-        const frame = canvas.parentElement;
-        canvas.width = frame.offsetWidth * 2;
-        canvas.height = 600 * 2;
-        canvas.style.width = `${frame.offsetWidth}px`;
-        canvas.style.height = '600px';
-        ctx.scale(2, 2);
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.lineWidth = 3;
-        drawSectionGuides();
-    }
+  function setCanvasSize() {
+    const frame = canvas.parentElement;
+    canvas.width = frame.offsetWidth * 1.5; // Smaller width
+    canvas.height = 800 * 2; // Taller height
+    canvas.style.width = `${frame.offsetWidth * 0.75}px`;
+    canvas.style.height = '800px';
+    ctx.scale(2, 2);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = 3;
+    drawSectionGuides();
+}
 
     function startDrawing(e) {
         isDrawing = true;
