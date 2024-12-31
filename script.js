@@ -33,24 +33,28 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.beginPath();
     }
 
-    function draw(e) {
-        if (!isDrawing) return;
-        
-        const rect = canvas.getBoundingClientRect();
-        const x = (e.clientX - rect.left) * (canvas.width / rect.width);
-        const y = (e.clientY - rect.top) * (canvas.height / rect.height);
-        
-        const sectionHeight = canvas.height / 3;
-        const currentSectionY = (currentSection - 1) * sectionHeight;
-        
-        if (y >= currentSectionY && y <= currentSectionY + sectionHeight) {
-            ctx.strokeStyle = currentColor; // Use current color for drawing
-            ctx.lineTo(x, y);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(x, y);
-        }
+ function draw(e) {
+    if (!isDrawing) return;
+    
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
+    
+    const sectionHeight = canvas.height / 3;
+    const currentSectionY = (currentSection - 1) * sectionHeight;
+    
+    if (y >= currentSectionY && y <= currentSectionY + sectionHeight) {
+        ctx.strokeStyle = currentColor;
+        ctx.lineTo(x/2, y/2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x/2, y/2);
     }
+}
+
 
     // Color picker event listener
     colorPicker.addEventListener('input', (e) => {
