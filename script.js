@@ -11,11 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function setCanvasSize() {
         const frame = canvas.parentElement;
-        canvas.width = frame.offsetWidth * 1.5;
-        canvas.height = 800 * 2;
-        canvas.style.width = `${frame.offsetWidth * 0.75}px`;
-        canvas.style.height = '800px';
-        ctx.scale(2, 2);
+        canvas.width = frame.offsetWidth;
+        canvas.height = frame.offsetWidth * 1.5;
+        canvas.style.width = '100%';
+        canvas.style.height = 'auto';
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         ctx.lineWidth = 3;
@@ -36,22 +35,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isDrawing) return;
         
         const rect = canvas.getBoundingClientRect();
-        const scaleX = canvas.width / rect.width;
-        const scaleY = canvas.height / rect.height;
-        
-        const x = (e.clientX - rect.left) * scaleX;
-        const y = (e.clientY - rect.top) * scaleY;
+        const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+        const y = (e.clientY - rect.top) * (canvas.height / rect.height);
         
         const sectionHeight = canvas.height / 3;
         const sectionTop = (currentSection - 1) * sectionHeight;
-        const sectionBottom = sectionTop + sectionHeight;
+        const sectionBottom = currentSection * sectionHeight;
         
         if (y >= sectionTop && y <= sectionBottom) {
             ctx.strokeStyle = currentColor;
-            ctx.lineTo(x/2, y/2);
+            ctx.lineTo(x, y);
             ctx.stroke();
             ctx.beginPath();
-            ctx.moveTo(x/2, y/2);
+            ctx.moveTo(x, y);
         }
     }
 
@@ -61,12 +57,13 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.setLineDash([5, 5]);
         ctx.strokeStyle = '#c4e0ff';
         
-        ctx.beginPath();
-        ctx.moveTo(0, sectionHeight);
-        ctx.lineTo(canvas.width, sectionHeight);
-        ctx.moveTo(0, sectionHeight * 2);
-        ctx.lineTo(canvas.width, sectionHeight * 2);
-        ctx.stroke();
+        for (let i = 1; i < totalSections; i++) {
+            const y = sectionHeight * i;
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(canvas.width, y);
+            ctx.stroke();
+        }
         
         ctx.restore();
     }
@@ -82,12 +79,14 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         const sectionHeight = canvas.height / 3;
         
+        let loadedImages = 0;
         sectionImages.forEach((imgData, i) => {
             if (imgData) {
                 const img = new Image();
                 img.onload = () => {
                     ctx.drawImage(img, 0, i * sectionHeight, canvas.width, sectionHeight);
-                    if (i === totalSections - 1) {
+                    loadedImages++;
+                    if (loadedImages === totalSections) {
                         setTimeout(createMagicalCelebration, 500);
                     }
                 };
@@ -136,7 +135,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector('.next-btn').textContent = 'Siguiente ✨';
     }
 
-    // Event Listeners
     colorPicker.addEventListener('input', (e) => {
         currentColor = e.target.value;
         ctx.strokeStyle = currentColor;
@@ -150,18 +148,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.querySelector('.next-btn').addEventListener('click', () => {
-        if (currentSection < totalSections) {
+        if (currentSection <= totalSections) {
             sectionImages[currentSection - 1] = canvas.toDataURL();
-            currentSection++;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawSectionGuides();
-            updatePagination();
             
             if (currentSection === totalSections) {
-                document.querySelector('.next-btn').textContent = 'Finalizar ✨';
+                showFinalCreation();
+            } else {
+                currentSection++;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                drawSectionGuides();
+                updatePagination();
+                
+                if (currentSection === totalSections) {
+                    document.querySelector('.next-btn').textContent = 'Finalizar ✨';
+                }
             }
-        } else {
-            showFinalCreation();
         }
         createSparkles(document.querySelector('.next-btn'));
     });
@@ -172,7 +173,6 @@ document.addEventListener('DOMContentLoaded', () => {
     canvas.addEventListener('mouseout', stopDrawing);
     window.addEventListener('resize', setCanvasSize);
 
-    // Initialize
     setCanvasSize();
     updatePagination();
 });
