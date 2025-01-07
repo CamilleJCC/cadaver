@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sectionImages = new Array(totalSections).fill(null);
     const peekHeight = 30;
     let originalCanvasHeight;
+    let isViewingFinal = false;
 
     function setCanvasSize() {
         const frame = canvas.parentElement;
@@ -28,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function startDrawing(e) {
+        if (isViewingFinal) return;
         isDrawing = true;
         draw(e);
     }
@@ -38,16 +40,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function draw(e) {
-        if (!isDrawing) return;
+        if (!isDrawing || isViewingFinal) return;
         
         const rect = canvas.getBoundingClientRect();
         const x = (e.clientX - rect.left) * (canvas.width / rect.width);
         const y = (e.clientY - rect.top) * (canvas.height / rect.height);
         
-        const isOnTopGuide = y < 5;
-        const isOnBottomGuide = y > canvas.height - 5;
+        // Buffer zone around guides
+        const isOnGuide = y < 10 || y > canvas.height - 10;
         
-        if (!isOnTopGuide && !isOnBottomGuide) {
+        if (!isOnGuide) {
             ctx.strokeStyle = currentColor;
             ctx.lineWidth = penSize;
             ctx.lineTo(x, y);
@@ -63,6 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.strokeStyle = '#c4e0ff';
         ctx.lineWidth = 2;
         
+        // Horizontal guides
         ctx.beginPath();
         ctx.moveTo(0, 0);
         ctx.lineTo(canvas.width, 0);
@@ -73,18 +76,23 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.lineTo(canvas.width, canvas.height);
         ctx.stroke();
         
+        // Vertical guides at edges
+        ctx.beginPath();
+        ctx.moveTo(20, 0);
+        ctx.lineTo(20, canvas.height);
+        ctx.stroke();
+        
+        ctx.beginPath();
+        ctx.moveTo(canvas.width - 20, 0);
+        ctx.lineTo(canvas.width - 20, canvas.height);
+        ctx.stroke();
+        
         ctx.restore();
         ctx.lineWidth = penSize;
     }
 
-    function updatePagination() {
-        const dots = document.querySelectorAll('.page-dot');
-        dots.forEach((dot, index) => {
-            dot.classList.toggle('active', index + 1 === currentSection);
-        });
-    }
-
     function showFinalCreation() {
+        isViewingFinal = true;
         const finalCanvas = document.createElement('canvas');
         const finalCtx = finalCanvas.getContext('2d');
         const sectionHeight = canvas.height;
@@ -140,6 +148,25 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function resetGame() {
+        isViewingFinal = false;
+        currentSection = 1;
+        sectionImages.fill(null);
+        const overlay = document.querySelector('.celebration-overlay');
+        if (overlay) overlay.remove();
+        canvas.height = originalCanvasHeight;
+        setCanvasSize();
+        updatePagination();
+        document.querySelector('.next-btn').textContent = 'Siguiente ✨';
+    }
+
+    function updatePagination() {
+        const dots = document.querySelectorAll('.page-dot');
+        dots.forEach((dot, index) => {
+            dot.classList.toggle('active', index + 1 === currentSection);
+        });
+    }
+
     function createSparkles(element) {
         for (let i = 0; i < 20; i++) {
             const sparkle = document.createElement('div');
@@ -149,17 +176,6 @@ document.addEventListener('DOMContentLoaded', () => {
             element.appendChild(sparkle);
             setTimeout(() => sparkle.remove(), 1000);
         }
-    }
-
-    function resetGame() {
-        currentSection = 1;
-        sectionImages.fill(null);
-        const overlay = document.querySelector('.celebration-overlay');
-        if (overlay) overlay.remove();
-        canvas.height = originalCanvasHeight;
-        setCanvasSize();
-        updatePagination();
-        document.querySelector('.next-btn').textContent = 'Siguiente ✨';
     }
 
     colorPicker.addEventListener('input', (e) => {
@@ -176,9 +192,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     document.querySelector('.clear-btn').addEventListener('click', () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        drawSectionGuides();
-        createSparkles(document.querySelector('.clear-btn'));
+        if (!isViewingFinal) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawSectionGuides();
+            createSparkles(document.querySelector('.clear-btn'));
+        }
     });
 
     document.querySelector('.next-btn').addEventListener('click', () => {
