@@ -9,12 +9,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const totalSections = 3;
     const sectionImages = new Array(totalSections).fill(null);
     const peekHeight = 40;
+    let originalCanvasHeight;
 
     function setCanvasSize() {
         const frame = canvas.parentElement;
         const sectionHeight = frame.offsetWidth * 0.8;
         canvas.width = frame.offsetWidth;
         canvas.height = sectionHeight + (peekHeight * 2);
+        originalCanvasHeight = canvas.height;
         canvas.style.width = '100%';
         canvas.style.height = 'auto';
         ctx.lineCap = 'round';
@@ -80,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const sectionHeight = canvas.height - (peekHeight * 2);
         
         finalCanvas.width = canvas.width;
-        finalCanvas.height = sectionHeight * totalSections;
+        finalCanvas.height = sectionHeight * totalSections * 0.5; // Scaled down height
         
         let loadedImages = 0;
         sectionImages.forEach((imgData, i) => {
@@ -91,8 +93,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         img, 
                         0, peekHeight, 
                         canvas.width, canvas.height - (peekHeight * 2),
-                        0, i * sectionHeight,
-                        canvas.width, sectionHeight
+                        0, i * (sectionHeight * 0.5),
+                        canvas.width, sectionHeight * 0.5
                     );
                     loadedImages++;
                     if (loadedImages === totalSections) {
@@ -121,9 +123,12 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         document.body.appendChild(celebration);
         
-        celebration.querySelector('.restart-btn').addEventListener('click', () => {
-            celebration.remove();
-            resetGame();
+        celebration.querySelector('.restart-btn').addEventListener('click', resetGame);
+        celebration.querySelector('.save-btn').addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.download = 'mi-cadaver-exquisito.png';
+            link.href = canvas.toDataURL();
+            link.click();
         });
     }
 
@@ -141,6 +146,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function resetGame() {
         currentSection = 1;
         sectionImages.fill(null);
+        const overlay = document.querySelector('.celebration-overlay');
+        if (overlay) overlay.remove();
         setCanvasSize();
         updatePagination();
         document.querySelector('.next-btn').textContent = 'Siguiente ✨';
