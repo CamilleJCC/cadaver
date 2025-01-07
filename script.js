@@ -8,11 +8,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentSection = 1;
     const totalSections = 3;
     const sectionImages = new Array(totalSections).fill(null);
+    const peekHeight = 40;
 
     function setCanvasSize() {
         const frame = canvas.parentElement;
+        const sectionHeight = frame.offsetWidth * 0.8;
         canvas.width = frame.offsetWidth;
-        canvas.height = frame.offsetWidth * 1.5;
+        canvas.height = sectionHeight + (peekHeight * 2);
         canvas.style.width = '100%';
         canvas.style.height = 'auto';
         ctx.lineCap = 'round';
@@ -38,11 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const x = (e.clientX - rect.left) * (canvas.width / rect.width);
         const y = (e.clientY - rect.top) * (canvas.height / rect.height);
         
-        const sectionHeight = canvas.height / 3;
-        const sectionTop = (currentSection - 1) * sectionHeight;
-        const sectionBottom = currentSection * sectionHeight;
-        
-        if (y >= sectionTop && y <= sectionBottom) {
+        if (y >= peekHeight && y <= canvas.height - peekHeight) {
             ctx.strokeStyle = currentColor;
             ctx.lineTo(x, y);
             ctx.stroke();
@@ -52,18 +50,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function drawSectionGuides() {
-        const sectionHeight = canvas.height / 3;
         ctx.save();
         ctx.setLineDash([5, 5]);
         ctx.strokeStyle = '#c4e0ff';
         
-        for (let i = 1; i < totalSections; i++) {
-            const y = sectionHeight * i;
-            ctx.beginPath();
-            ctx.moveTo(0, y);
-            ctx.lineTo(canvas.width, y);
-            ctx.stroke();
-        }
+        ctx.beginPath();
+        ctx.moveTo(0, peekHeight);
+        ctx.lineTo(canvas.width, peekHeight);
+        ctx.stroke();
+        
+        ctx.beginPath();
+        ctx.moveTo(0, canvas.height - peekHeight);
+        ctx.lineTo(canvas.width, canvas.height - peekHeight);
+        ctx.stroke();
         
         ctx.restore();
     }
@@ -76,17 +75,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showFinalCreation() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const sectionHeight = canvas.height / 3;
+        const finalCanvas = document.createElement('canvas');
+        const finalCtx = finalCanvas.getContext('2d');
+        const sectionHeight = canvas.height - (peekHeight * 2);
+        
+        finalCanvas.width = canvas.width;
+        finalCanvas.height = sectionHeight * totalSections;
         
         let loadedImages = 0;
         sectionImages.forEach((imgData, i) => {
             if (imgData) {
                 const img = new Image();
                 img.onload = () => {
-                    ctx.drawImage(img, 0, i * sectionHeight, canvas.width, sectionHeight);
+                    finalCtx.drawImage(
+                        img, 
+                        0, peekHeight, 
+                        canvas.width, canvas.height - (peekHeight * 2),
+                        0, i * sectionHeight,
+                        canvas.width, sectionHeight
+                    );
                     loadedImages++;
                     if (loadedImages === totalSections) {
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        canvas.height = finalCanvas.height;
+                        ctx.drawImage(finalCanvas, 0, 0);
                         setTimeout(createMagicalCelebration, 500);
                     }
                 };
@@ -129,8 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function resetGame() {
         currentSection = 1;
         sectionImages.fill(null);
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        drawSectionGuides();
+        setCanvasSize();
         updatePagination();
         document.querySelector('.next-btn').textContent = 'Siguiente ✨';
     }
