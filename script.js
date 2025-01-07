@@ -1,93 +1,95 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const mainCanvas = document.getElementById('drawingCanvas');
-    const guideCanvas = document.createElement('canvas');
-    const ctx = mainCanvas.getContext('2d');
-    const guideCtx = guideCanvas.getContext('2d');
+    const canvas = document.getElementById('drawingCanvas');
+    const ctx = canvas.getContext('2d');
     const colorPicker = document.getElementById('colorPicker');
     const penSizeSlider = document.getElementById('penSize');
     
     let isDrawing = false;
     let currentColor = colorPicker.value;
     let currentSection = 1;
-    let penSize = penSizeSlider ? penSizeSlider.value : 5; // Larger default pen size
+    let penSize = penSizeSlider ? penSizeSlider.value : 5;
     const totalSections = 3;
     const sectionImages = new Array(totalSections).fill(null);
     const peekHeight = 30;
     let originalCanvasHeight;
 
-    // Setup guide canvas
-    guideCanvas.style.position = 'absolute';
-    guideCanvas.style.top = '0';
-    guideCanvas.style.left = '0';
-    guideCanvas.style.pointerEvents = 'none';
-    mainCanvas.parentElement.appendChild(guideCanvas);
-
     function setCanvasSize() {
-        const frame = mainCanvas.parentElement;
-        const sectionHeight = frame.offsetWidth * 0.4; // More compact drawing area
-        
-        // Set size for both canvases
-        [mainCanvas, guideCanvas].forEach(canvas => {
-            canvas.width = frame.offsetWidth;
-            canvas.height = sectionHeight + (peekHeight * 2);
-            canvas.style.width = '100%';
-            canvas.style.height = 'auto';
-        });
-
-        originalCanvasHeight = mainCanvas.height;
-        
-        // Setup main canvas
+        const frame = canvas.parentElement;
+        const sectionHeight = frame.offsetWidth * 0.4;
+        canvas.width = frame.offsetWidth;
+        canvas.height = sectionHeight;
+        originalCanvasHeight = canvas.height;
+        canvas.style.width = '100%';
+        canvas.style.height = 'auto';
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         ctx.lineWidth = penSize;
-
         drawSectionGuides();
     }
 
-    function drawSectionGuides() {
-        guideCtx.clearRect(0, 0, guideCanvas.width, guideCanvas.height);
-        guideCtx.setLineDash([5, 5]);
-        guideCtx.strokeStyle = '#c4e0ff';
-        guideCtx.lineWidth = 2;
-        
-        // Draw guide lines
-        [peekHeight, guideCanvas.height - peekHeight].forEach(y => {
-            guideCtx.beginPath();
-            guideCtx.moveTo(0, y);
-            guideCtx.lineTo(guideCanvas.width, y);
-            guideCtx.stroke();
-        });
+    function startDrawing(e) {
+        isDrawing = true;
+        draw(e);
+    }
+
+    function stopDrawing() {
+        isDrawing = false;
+        ctx.beginPath();
     }
 
     function draw(e) {
         if (!isDrawing) return;
         
-        const rect = mainCanvas.getBoundingClientRect();
-        const x = (e.clientX - rect.left) * (mainCanvas.width / rect.width);
-        const y = (e.clientY - rect.top) * (mainCanvas.height / rect.height);
+        const rect = canvas.getBoundingClientRect();
+        const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+        const y = (e.clientY - rect.top) * (canvas.height / rect.height);
         
-        if (y >= peekHeight && y <= mainCanvas.height - peekHeight) {
+        const isOnTopGuide = y < 5;
+        const isOnBottomGuide = y > canvas.height - 5;
+        
+        if (!isOnTopGuide && !isOnBottomGuide) {
+            ctx.strokeStyle = currentColor;
+            ctx.lineWidth = penSize;
             ctx.lineTo(x, y);
             ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
         }
     }
 
-    function startDrawing(e) {
-        isDrawing = true;
-        const rect = mainCanvas.getBoundingClientRect();
-        const x = (e.clientX - rect.left) * (mainCanvas.width / rect.width);
-        const y = (e.clientY - rect.top) * (mainCanvas.height / rect.height);
+    function drawSectionGuides() {
+        ctx.save();
+        ctx.setLineDash([5, 5]);
+        ctx.strokeStyle = '#c4e0ff';
+        ctx.lineWidth = 2;
         
         ctx.beginPath();
-        ctx.moveTo(x, y);
+        ctx.moveTo(0, 0);
+        ctx.lineTo(canvas.width, 0);
+        ctx.stroke();
+        
+        ctx.beginPath();
+        ctx.moveTo(0, canvas.height);
+        ctx.lineTo(canvas.width, canvas.height);
+        ctx.stroke();
+        
+        ctx.restore();
+        ctx.lineWidth = penSize;
+    }
+
+    function updatePagination() {
+        const dots = document.querySelectorAll('.page-dot');
+        dots.forEach((dot, index) => {
+            dot.classList.toggle('active', index + 1 === currentSection);
+        });
     }
 
     function showFinalCreation() {
         const finalCanvas = document.createElement('canvas');
         const finalCtx = finalCanvas.getContext('2d');
-        const sectionHeight = mainCanvas.height - (peekHeight * 2);
+        const sectionHeight = canvas.height;
         
-        finalCanvas.width = mainCanvas.width;
+        finalCanvas.width = canvas.width;
         finalCanvas.height = sectionHeight * totalSections;
         
         let loadedImages = 0;
@@ -97,15 +99,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 img.onload = () => {
                     finalCtx.drawImage(
                         img, 
-                        0, peekHeight, 
-                        mainCanvas.width, mainCanvas.height - (peekHeight * 2),
+                        0, 0, 
+                        canvas.width, canvas.height,
                         0, i * sectionHeight,
-                        mainCanvas.width, sectionHeight
+                        canvas.width, sectionHeight
                     );
                     loadedImages++;
                     if (loadedImages === totalSections) {
-                        ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
-                        mainCanvas.height = finalCanvas.height;
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        canvas.height = finalCanvas.height;
                         ctx.drawImage(finalCanvas, 0, 0);
                         setTimeout(createMagicalCelebration, 500);
                     }
@@ -115,24 +117,49 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Keep existing functions but update resetGame
+    function createMagicalCelebration() {
+        const celebration = document.createElement('div');
+        celebration.className = 'celebration-overlay';
+        celebration.innerHTML = `
+            <div class="celebration-message">
+                ¡Tu cadáver exquisito está completo! ✨
+                <div class="celebration-buttons">
+                    <button class="restart-btn">Crear otro</button>
+                    <button class="save-btn">Guardar creación</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(celebration);
+        
+        celebration.querySelector('.restart-btn').addEventListener('click', resetGame);
+        celebration.querySelector('.save-btn').addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.download = 'mi-cadaver-exquisito.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        });
+    }
+
+    function createSparkles(element) {
+        for (let i = 0; i < 20; i++) {
+            const sparkle = document.createElement('div');
+            sparkle.className = 'sparkle';
+            sparkle.style.left = Math.random() * 100 + '%';
+            sparkle.style.top = Math.random() * 100 + '%';
+            element.appendChild(sparkle);
+            setTimeout(() => sparkle.remove(), 1000);
+        }
+    }
+
     function resetGame() {
         currentSection = 1;
         sectionImages.fill(null);
         const overlay = document.querySelector('.celebration-overlay');
         if (overlay) overlay.remove();
-        mainCanvas.height = originalCanvasHeight;
+        canvas.height = originalCanvasHeight;
         setCanvasSize();
         updatePagination();
         document.querySelector('.next-btn').textContent = 'Siguiente ✨';
-    }
-
-    // Event Listeners
-    if (penSizeSlider) {
-        penSizeSlider.addEventListener('input', (e) => {
-            penSize = e.target.value;
-            ctx.lineWidth = penSize;
-        });
     }
 
     colorPicker.addEventListener('input', (e) => {
@@ -141,20 +168,45 @@ document.addEventListener('DOMContentLoaded', () => {
         createSparkles(colorPicker);
     });
 
+    if (penSizeSlider) {
+        penSizeSlider.addEventListener('input', (e) => {
+            penSize = e.target.value;
+            ctx.lineWidth = penSize;
+        });
+    }
+
     document.querySelector('.clear-btn').addEventListener('click', () => {
-        ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawSectionGuides();
         createSparkles(document.querySelector('.clear-btn'));
     });
 
-    // Keep your existing event listeners but update canvas references to mainCanvas
+    document.querySelector('.next-btn').addEventListener('click', () => {
+        if (currentSection <= totalSections) {
+            sectionImages[currentSection - 1] = canvas.toDataURL();
+            
+            if (currentSection === totalSections) {
+                showFinalCreation();
+            } else {
+                currentSection++;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                drawSectionGuides();
+                updatePagination();
+                
+                if (currentSection === totalSections) {
+                    document.querySelector('.next-btn').textContent = 'Finalizar ✨';
+                }
+            }
+            createSparkles(document.querySelector('.next-btn'));
+        }
+    });
 
-    mainCanvas.addEventListener('mousedown', startDrawing);
-    mainCanvas.addEventListener('mousemove', draw);
-    mainCanvas.addEventListener('mouseup', () => isDrawing = false);
-    mainCanvas.addEventListener('mouseout', () => isDrawing = false);
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseout', stopDrawing);
     window.addEventListener('resize', setCanvasSize);
 
-    // Initialize
     setCanvasSize();
     updatePagination();
 });
