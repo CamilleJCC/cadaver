@@ -2,18 +2,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('drawingCanvas');
     const ctx = canvas.getContext('2d');
     const colorPicker = document.getElementById('colorPicker');
+    const penSizeSlider = document.getElementById('penSize');
     
     let isDrawing = false;
     let currentColor = colorPicker.value;
     let currentSection = 1;
+    let penSize = penSizeSlider ? penSizeSlider.value : 3;
     const totalSections = 3;
     const sectionImages = new Array(totalSections).fill(null);
-    const peekHeight = 40;
+    const peekHeight = 30;
     let originalCanvasHeight;
 
     function setCanvasSize() {
         const frame = canvas.parentElement;
-        const sectionHeight = frame.offsetWidth * 0.8;
+        const sectionHeight = frame.offsetWidth * 0.5; // Reduced from 0.8 to 0.5
         canvas.width = frame.offsetWidth;
         canvas.height = sectionHeight + (peekHeight * 2);
         originalCanvasHeight = canvas.height;
@@ -21,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
         canvas.style.height = 'auto';
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
-        ctx.lineWidth = 3;
+        ctx.lineWidth = penSize;
         drawSectionGuides();
     }
 
@@ -42,8 +44,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const x = (e.clientX - rect.left) * (canvas.width / rect.width);
         const y = (e.clientY - rect.top) * (canvas.height / rect.height);
         
-        if (y >= peekHeight && y <= canvas.height - peekHeight) {
+        const isOnTopGuide = Math.abs(y - peekHeight) < 5;
+        const isOnBottomGuide = Math.abs(y - (canvas.height - peekHeight)) < 5;
+        
+        if (y >= peekHeight && y <= canvas.height - peekHeight && !isOnTopGuide && !isOnBottomGuide) {
             ctx.strokeStyle = currentColor;
+            ctx.lineWidth = penSize;
             ctx.lineTo(x, y);
             ctx.stroke();
             ctx.beginPath();
@@ -55,6 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.save();
         ctx.setLineDash([5, 5]);
         ctx.strokeStyle = '#c4e0ff';
+        ctx.lineWidth = 1;
         
         ctx.beginPath();
         ctx.moveTo(0, peekHeight);
@@ -67,6 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.stroke();
         
         ctx.restore();
+        ctx.lineWidth = penSize;
     }
 
     function updatePagination() {
@@ -82,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const sectionHeight = canvas.height - (peekHeight * 2);
         
         finalCanvas.width = canvas.width;
-        finalCanvas.height = sectionHeight * totalSections * 0.5; // Scaled down height
+        finalCanvas.height = sectionHeight * totalSections * 0.5;
         
         let loadedImages = 0;
         sectionImages.forEach((imgData, i) => {
@@ -158,6 +166,13 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.strokeStyle = currentColor;
         createSparkles(colorPicker);
     });
+
+    if (penSizeSlider) {
+        penSizeSlider.addEventListener('input', (e) => {
+            penSize = e.target.value;
+            ctx.lineWidth = penSize;
+        });
+    }
 
     document.querySelector('.clear-btn').addEventListener('click', () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
