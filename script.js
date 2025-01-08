@@ -58,6 +58,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+   // Previous code remains the same until drawSectionGuides function
+
     function drawSectionGuides() {
         ctx.save();
         
@@ -76,8 +78,19 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.lineTo(canvas.width, canvas.height);
         ctx.stroke();
         
-        // Vertical solid guides
+        // Vertical solid guides at top
         ctx.setLineDash([]); // Remove dash pattern
+        ctx.beginPath();
+        ctx.moveTo(20, 0);
+        ctx.lineTo(20, 20);
+        ctx.stroke();
+        
+        ctx.beginPath();
+        ctx.moveTo(canvas.width - 20, 0);
+        ctx.lineTo(canvas.width - 20, 20);
+        ctx.stroke();
+        
+        // Vertical solid guides at bottom
         ctx.beginPath();
         ctx.moveTo(20, canvas.height - 20);
         ctx.lineTo(20, canvas.height);
@@ -91,6 +104,21 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.restore();
         ctx.lineWidth = penSize;
     }
+
+    function startDrawing(e) {
+        if (isViewingFinal) return;
+        isDrawing = true;
+        
+        const rect = canvas.getBoundingClientRect();
+        const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+        const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+        
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+    }
+
+// Rest of the code remains the same
+
 
     function updatePagination() {
         const dots = document.querySelectorAll('.page-dot');
