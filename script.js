@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function addPaperTexture() {
         const texture = new Image();
-        texture.src = 'path/to/paper-texture.png'; // Add your texture image path
+        texture.src = 'https://mir-s3-cdn-cf.behance.net/project_modules/1400/a948d849671425.58bb77365e179.jpg'; // Add your texture image path
         texture.onload = () => {
             ctx.save();
             ctx.globalAlpha = 0.1;
