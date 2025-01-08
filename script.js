@@ -1,4 +1,4 @@
-/* // Firebase configuration
+/* Firebase configuration
 const firebaseConfig = {
     apiKey: "your-api-key",
     storageBucket: "your-project.appspot.com",
@@ -201,6 +201,36 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function createMagicalCelebration() {
+        if (hasFinalized) return;
+        hasFinalized = true;
+        
+        // Replace the drawing tools content
+        const drawingTools = document.querySelector('.drawing-tools');
+        drawingTools.innerHTML = `
+            <h2>¡Tu cadáver exquisito está completo! ✨</h2>
+            <div class="celebration-buttons">
+                <button class="download-btn tool-button">Descargar</button>
+                <button class="restart-btn tool-button">Crear otro</button>
+            </div>
+        `;
+
+        // Add event listeners to new buttons
+        drawingTools.querySelector('.download-btn').addEventListener('click', async () => {
+            const imageData = canvas.toDataURL();
+            const downloadURL = await saveToFirebase(imageData);
+            if (downloadURL) {
+                const link = document.createElement('a');
+                link.href = downloadURL;
+                link.download = `cadaver-exquisito-${Date.now()}.png`;
+                link.click();
+                createSparkles(drawingTools.querySelector('.download-btn'));
+            }
+        });
+
+        drawingTools.querySelector('.restart-btn').addEventListener('click', resetGame);
+    }
+
     function updatePagination() {
         const dots = document.querySelectorAll('.page-dot');
         dots.forEach((dot, index) => {
@@ -224,98 +254,85 @@ document.addEventListener('DOMContentLoaded', () => {
         hasFinalized = false;
         currentSection = 1;
         sectionImages.fill(null);
-        const overlay = document.querySelector('.celebration-overlay');
-        if (overlay) overlay.remove();
         canvas.height = originalCanvasHeight;
+        
+        // Restore original drawing tools
+        const drawingTools = document.querySelector('.drawing-tools');
+        drawingTools.innerHTML = `
+            <div class="color-palette">
+                <input type="color" id="colorPicker" value="#000000">
+                <input type="range" id="penSize" min="1" max="20" value="3" class="pen-size-slider">
+                <select id="brushStyle" class="brush-selector">
+                    <option value="pencil">Lápiz</option>
+                    <option value="marker">Marcador</option>
+                    <option value="crayon">Crayón</option>
+                    <option value="spray">Spray</option>
+                </select>
+            </div>
+            <button class="clear-btn tool-button">Borrar</button>
+            <button class="next-btn tool-button">Siguiente ✨</button>
+        `;
+        
+        // Reinitialize event listeners
+        initializeEventListeners();
         setCanvasSize();
         updatePagination();
-        const nextBtn = document.querySelector('.next-btn');
-        nextBtn.disabled = false;
-        nextBtn.style.opacity = '1';
-        nextBtn.textContent = 'Siguiente ✨';
     }
 
-    function createMagicalCelebration() {
-        if (hasFinalized) return;
-        hasFinalized = true;
+    function initializeEventListeners() {
+        const newColorPicker = document.getElementById('colorPicker');
+        const newPenSizeSlider = document.getElementById('penSize');
+        const newBrushSelector = document.getElementById('brushStyle');
         
-        const celebration = document.createElement('div');
-        celebration.className = 'celebration-overlay reveal-animation';
-        celebration.innerHTML = `
-            <div class="celebration-message">
-                <h2>¡Tu cadáver exquisito está completo! ✨</h2>
-                <div class="celebration-buttons">
-                    <button class="download-btn tool-button">Descargar</button>
-                    <button class="restart-btn tool-button">Crear otro</button>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(celebration);
-
-        celebration.querySelector('.download-btn').addEventListener('click', async () => {
-            const imageData = canvas.toDataURL();
-            const downloadURL = await saveToFirebase(imageData);
-            if (downloadURL) {
-                const link = document.createElement('a');
-                link.href = downloadURL;
-                link.download = `cadaver-exquisito-${Date.now()}.png`;
-                link.click();
-                createSparkles(celebration.querySelector('.download-btn'));
-            }
+        newColorPicker.addEventListener('input', (e) => {
+            currentColor = e.target.value;
+            ctx.strokeStyle = currentColor;
+            createSparkles(newColorPicker);
         });
 
-        celebration.querySelector('.restart-btn').addEventListener('click', resetGame);
-    }
-
-    // Event Listeners
-    if (brushSelector) {
-        brushSelector.addEventListener('change', (e) => {
-            currentBrushStyle = e.target.value;
-        });
-    }
-
-    colorPicker.addEventListener('input', (e) => {
-        currentColor = e.target.value;
-        ctx.strokeStyle = currentColor;
-        createSparkles(colorPicker);
-    });
-
-    if (penSizeSlider) {
-        penSizeSlider.addEventListener('input', (e) => {
-            penSize = e.target.value;
-            ctx.lineWidth = penSize;
-        });
-    }
-
-    document.querySelector('.clear-btn').addEventListener('click', () => {
-        if (!isViewingFinal) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawSectionGuides();
-            createSparkles(document.querySelector('.clear-btn'));
+        if (newPenSizeSlider) {
+            newPenSizeSlider.addEventListener('input', (e) => {
+                penSize = e.target.value;
+                ctx.lineWidth = penSize;
+            });
         }
-    });
 
-    document.querySelector('.next-btn').addEventListener('click', () => {
-        if (currentSection <= totalSections && !hasFinalized) {
-            sectionImages[currentSection - 1] = canvas.toDataURL();
-            
-            if (currentSection === totalSections) {
-                showFinalCreation();
-                document.querySelector('.next-btn').disabled = true;
-            } else {
-                currentSection++;
+        if (newBrushSelector) {
+            newBrushSelector.addEventListener('change', (e) => {
+                currentBrushStyle = e.target.value;
+            });
+        }
+
+        document.querySelector('.clear-btn').addEventListener('click', () => {
+            if (!isViewingFinal) {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 drawSectionGuides();
-                updatePagination();
+                createSparkles(document.querySelector('.clear-btn'));
+            }
+        });
+
+        document.querySelector('.next-btn').addEventListener('click', () => {
+            if (currentSection <= totalSections && !hasFinalized) {
+                sectionImages[currentSection - 1] = canvas.toDataURL();
                 
                 if (currentSection === totalSections) {
-                    document.querySelector('.next-btn').textContent = 'Finalizar ✨';
+                    showFinalCreation();
+                } else {
+                    currentSection++;
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    drawSectionGuides();
+                    updatePagination();
+                    
+                    if (currentSection === totalSections) {
+                        document.querySelector('.next-btn').textContent = 'Finalizar ✨';
+                    }
                 }
+                createSparkles(document.querySelector('.next-btn'));
             }
-            createSparkles(document.querySelector('.next-btn'));
-        }
-    });
+        });
+    }
 
+    // Initial event listeners
     canvas.addEventListener('mousedown', startDrawing);
     canvas.addEventListener('mousemove', draw);
     canvas.addEventListener('mouseup', stopDrawing);
@@ -323,6 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('resize', setCanvasSize);
 
     // Initialize
+    initializeEventListeners();
     setCanvasSize();
     updatePagination();
 });
