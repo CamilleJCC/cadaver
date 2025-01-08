@@ -1,3 +1,12 @@
+// Firebase configuration
+const firebaseConfig = {
+    apiKey: "your-api-key",
+    storageBucket: "your-project.appspot.com",
+    // Add other Firebase config properties
+};
+firebase.initializeApp(firebaseConfig);
+const storage = firebase.storage();
+
 document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('drawingCanvas');
     const ctx = canvas.getContext('2d');
@@ -14,6 +23,21 @@ document.addEventListener('DOMContentLoaded', () => {
     let originalCanvasHeight;
     let isViewingFinal = false;
 
+    function addPaperTexture() {
+        const texture = new Image();
+        texture.src = 'path/to/paper-texture.png'; // Add your texture image path
+        texture.onload = () => {
+            ctx.save();
+            ctx.globalAlpha = 0.1;
+            const pattern = ctx.createPattern(texture, 'repeat');
+            ctx.fillStyle = pattern;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.globalAlpha = 1.0;
+            ctx.restore();
+            drawSectionGuides();
+        };
+    }
+
     function setCanvasSize() {
         const frame = canvas.parentElement;
         const sectionHeight = frame.offsetWidth * 0.4;
@@ -25,13 +49,19 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         ctx.lineWidth = penSize;
-        drawSectionGuides();
+        addPaperTexture();
     }
 
     function startDrawing(e) {
         if (isViewingFinal) return;
         isDrawing = true;
-        draw(e);
+        
+        const rect = canvas.getBoundingClientRect();
+        const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+        const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+        
+        ctx.beginPath();
+        ctx.moveTo(x, y);
     }
 
     function stopDrawing() {
@@ -49,16 +79,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const isOnGuide = y < 10 || y > canvas.height - 10;
         
         if (!isOnGuide) {
+            ctx.save();
             ctx.strokeStyle = currentColor;
             ctx.lineWidth = penSize;
             ctx.lineTo(x, y);
             ctx.stroke();
             ctx.beginPath();
             ctx.moveTo(x, y);
+            ctx.restore();
         }
     }
-
-   // Previous code remains the same until drawSectionGuides function
 
     function drawSectionGuides() {
         ctx.save();
@@ -105,20 +135,17 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.lineWidth = penSize;
     }
 
-    function startDrawing(e) {
-        if (isViewingFinal) return;
-        isDrawing = true;
-        
-        const rect = canvas.getBoundingClientRect();
-        const x = (e.clientX - rect.left) * (canvas.width / rect.width);
-        const y = (e.clientY - rect.top) * (canvas.height / rect.height);
-        
-        ctx.beginPath();
-        ctx.moveTo(x, y);
+    async function saveToFirebase(imageData) {
+        const drawingRef = storage.ref().child(`drawings/${Date.now()}.png`);
+        try {
+            const snapshot = await drawingRef.putString(imageData, 'data_url');
+            const downloadURL = await snapshot.ref.getDownloadURL();
+            return downloadURL;
+        } catch (error) {
+            console.error("Error saving drawing:", error);
+            return null;
+        }
     }
-
-// Rest of the code remains the same
-
 
     function updatePagination() {
         const dots = document.querySelectorAll('.page-dot');
@@ -168,20 +195,39 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="celebration-message">
                 ¡Tu cadáver exquisito está completo! ✨
                 <div class="celebration-buttons">
-                    <button class="restart-btn">Crear otro</button>
                     <button class="save-btn">Guardar creación</button>
+                    <button class="restart-btn">Crear otro</button>
+                    <button class="gallery-btn">Ver galería</button>
                 </div>
             </div>
         `;
         document.body.appendChild(celebration);
         
-        celebration.querySelector('.restart-btn').addEventListener('click', resetGame);
-        celebration.querySelector('.save-btn').addEventListener('click', () => {
-            const link = document.createElement('a');
-            link.download = 'mi-cadaver-exquisito.png';
-            link.href = canvas.toDataURL();
-            link.click();
+        celebration.querySelector('.save-btn').addEventListener('click', async () => {
+            const imageData = canvas.toDataURL();
+            const downloadURL = await saveToFirebase(imageData);
+            if (downloadURL) {
+                const link = document.createElement('a');
+                link.href = downloadURL;
+                link.download = `cadaver-exquisito-${Date.now()}.png`;
+                link.click();
+                createSparkles(celebration.querySelector('.save-btn'));
+            }
         });
+
+        celebration.querySelector('.restart-btn').addEventListener('click', resetGame);
+        
+        celebration.querySelector('.gallery-btn').addEventListener('click', showGallery);
+    }
+
+    async function showGallery() {
+        const galleryRef = storage.ref().child('drawings');
+        try {
+            const result = await galleryRef.listAll();
+            // Implement gallery view here
+        } catch (error) {
+            console.error("Error loading gallery:", error);
+        }
     }
 
     function createSparkles(element) {
@@ -223,7 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelector('.clear-btn').addEventListener('click', () => {
         if (!isViewingFinal) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawSectionGuides();
+            addPaperTexture();
             createSparkles(document.querySelector('.clear-btn'));
         }
     });
@@ -237,7 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 currentSection++;
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                drawSectionGuides();
+                addPaperTexture();
                 updatePagination();
                 
                 if (currentSection === totalSections) {
