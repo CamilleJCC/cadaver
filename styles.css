@@ -127,9 +127,10 @@ h1 {
 /* Color Palette and Tools */
 .color-palette {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 1rem;
-    margin-bottom: 1rem;
+    padding: 20px 0px;
+    flex-direction: column;
 }
 
 #colorPicker {
