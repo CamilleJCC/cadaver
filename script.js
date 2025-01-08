@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function setCanvasSize() {
         const frame = canvas.parentElement;
-        const sectionHeight = frame.offsetWidth * 0.4;
+        const sectionHeight = frame.offsetWidth * 0.5;
         canvas.width = frame.offsetWidth;
         canvas.height = sectionHeight;
         originalCanvasHeight = canvas.height;
