@@ -167,12 +167,14 @@ h1 {
 }
 
 .brush-selector {
-    padding: 0.5rem;
-    border-radius: 0.5rem;
+    padding: 10px 15px;
+    border-radius: 2rem;
     border: 2px solid var(--gradient-start);
     background: var(--background-color);
     color: var(--secondary-color);
     cursor: pointer;
+    font-size: clamp(1rem, 2vw, 1.125rem);
+    width: fit-content;
 }
 
 /* Pagination Dots */
