@@ -1,18 +1,83 @@
+/* // Firebase configuration
+const firebaseConfig = {
+    apiKey: "your-api-key",
+    storageBucket: "your-project.appspot.com",
+};
+firebase.initializeApp(firebaseConfig);
+const storage = firebase.storage(); */
+
 document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('drawingCanvas');
     const ctx = canvas.getContext('2d');
     const colorPicker = document.getElementById('colorPicker');
     const penSizeSlider = document.getElementById('penSize');
+    const brushSelector = document.getElementById('brushStyle');
     
     let isDrawing = false;
     let currentColor = colorPicker.value;
     let currentSection = 1;
     let penSize = penSizeSlider ? penSizeSlider.value : 5;
+    let currentBrushStyle = 'pencil';
     const totalSections = 3;
     const sectionImages = new Array(totalSections).fill(null);
-    const peekHeight = 30;
     let originalCanvasHeight;
     let isViewingFinal = false;
+    let hasFinalized = false;
+
+    const brushStyles = {
+        pencil: {
+            setup(ctx) {
+                ctx.lineWidth = penSize;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+            },
+            draw(ctx, x, y) {
+                ctx.lineTo(x, y);
+                ctx.stroke();
+            }
+        },
+        marker: {
+            setup(ctx) {
+                ctx.lineWidth = penSize * 2;
+                ctx.lineCap = 'square';
+                ctx.lineJoin = 'miter';
+            },
+            draw(ctx, x, y) {
+                ctx.lineTo(x, y);
+                ctx.stroke();
+            }
+        },
+        crayon: {
+            setup(ctx) {
+                ctx.lineWidth = penSize * 1.5;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.globalAlpha = 0.8;
+            },
+            draw(ctx, x, y) {
+                for(let i = 0; i < 3; i++) {
+                    ctx.lineTo(x + Math.random() * 2 - 1, y + Math.random() * 2 - 1);
+                    ctx.stroke();
+                }
+            }
+        },
+        spray: {
+            setup(ctx) {
+                ctx.fillStyle = currentColor;
+            },
+            draw(ctx, x, y) {
+                for(let i = 0; i < 20; i++) {
+                    const angle = Math.random() * 2 * Math.PI;
+                    const radius = Math.random() * penSize * 2;
+                    ctx.fillRect(
+                        x + radius * Math.cos(angle),
+                        y + radius * Math.sin(angle),
+                        1, 1
+                    );
+                }
+            }
+        }
+    };
 
     function setCanvasSize() {
         const frame = canvas.parentElement;
@@ -22,22 +87,52 @@ document.addEventListener('DOMContentLoaded', () => {
         originalCanvasHeight = canvas.height;
         canvas.style.width = '100%';
         canvas.style.height = 'auto';
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.lineWidth = penSize;
         drawSectionGuides();
+    }
+
+    function drawSectionGuides() {
+        ctx.save();
+        ctx.setLineDash([5, 5]);
+        ctx.strokeStyle = '#c4e0ff';
+        ctx.lineWidth = 2;
+        
+        // Horizontal guides
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(canvas.width, 0);
+        ctx.stroke();
+        
+        ctx.beginPath();
+        ctx.moveTo(0, canvas.height);
+        ctx.lineTo(canvas.width, canvas.height);
+        ctx.stroke();
+        
+        // Vertical guides
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.moveTo(20, 0);
+        ctx.lineTo(20, 20);
+        ctx.moveTo(canvas.width - 20, 0);
+        ctx.lineTo(canvas.width - 20, 20);
+        ctx.moveTo(20, canvas.height - 20);
+        ctx.lineTo(20, canvas.height);
+        ctx.moveTo(canvas.width - 20, canvas.height - 20);
+        ctx.lineTo(canvas.width - 20, canvas.height);
+        ctx.stroke();
+        
+        ctx.restore();
     }
 
     function startDrawing(e) {
         if (isViewingFinal) return;
         isDrawing = true;
-        
         const rect = canvas.getBoundingClientRect();
         const x = (e.clientX - rect.left) * (canvas.width / rect.width);
         const y = (e.clientY - rect.top) * (canvas.height / rect.height);
         
         ctx.beginPath();
         ctx.moveTo(x, y);
+        brushStyles[currentBrushStyle].setup(ctx);
     }
 
     function stopDrawing() {
@@ -56,57 +151,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (!isOnGuide) {
             ctx.strokeStyle = currentColor;
-            ctx.lineWidth = penSize;
-            ctx.lineTo(x, y);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(x, y);
+            brushStyles[currentBrushStyle].draw(ctx, x, y);
         }
-    }
-
-    function drawSectionGuides() {
-        ctx.save();
-        
-        // Horizontal dashed guides
-        ctx.setLineDash([5, 5]);
-        ctx.strokeStyle = '#c4e0ff';
-        ctx.lineWidth = 2;
-        
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(canvas.width, 0);
-        ctx.stroke();
-        
-        ctx.beginPath();
-        ctx.moveTo(0, canvas.height);
-        ctx.lineTo(canvas.width, canvas.height);
-        ctx.stroke();
-        
-        // Vertical solid guides at top
-        ctx.setLineDash([]); // Remove dash pattern
-        ctx.beginPath();
-        ctx.moveTo(20, 0);
-        ctx.lineTo(20, 20);
-        ctx.stroke();
-        
-        ctx.beginPath();
-        ctx.moveTo(canvas.width - 20, 0);
-        ctx.lineTo(canvas.width - 20, 20);
-        ctx.stroke();
-        
-        // Vertical solid guides at bottom
-        ctx.beginPath();
-        ctx.moveTo(20, canvas.height - 20);
-        ctx.lineTo(20, canvas.height);
-        ctx.stroke();
-        
-        ctx.beginPath();
-        ctx.moveTo(canvas.width - 20, canvas.height - 20);
-        ctx.lineTo(canvas.width - 20, canvas.height);
-        ctx.stroke();
-        
-        ctx.restore();
-        ctx.lineWidth = penSize;
     }
 
     async function saveToFirebase(imageData) {
@@ -119,13 +165,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Error saving drawing:", error);
             return null;
         }
-    }
-
-    function updatePagination() {
-        const dots = document.querySelectorAll('.page-dot');
-        dots.forEach((dot, index) => {
-            dot.classList.toggle('active', index + 1 === currentSection);
-        });
     }
 
     function showFinalCreation() {
@@ -162,46 +201,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function createMagicalCelebration() {
-        const celebration = document.createElement('div');
-        celebration.className = 'celebration-overlay';
-        celebration.innerHTML = `
-            <div class="celebration-message">
-                ¡Tu cadáver exquisito está completo! ✨
-                <div class="celebration-buttons">
-                    <button class="save-btn">Guardar creación</button>
-                    <button class="restart-btn">Crear otro</button>
-                    <button class="gallery-btn">Ver galería</button>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(celebration);
-        
-        celebration.querySelector('.save-btn').addEventListener('click', async () => {
-            const imageData = canvas.toDataURL();
-            const downloadURL = await saveToFirebase(imageData);
-            if (downloadURL) {
-                const link = document.createElement('a');
-                link.href = downloadURL;
-                link.download = `cadaver-exquisito-${Date.now()}.png`;
-                link.click();
-                createSparkles(celebration.querySelector('.save-btn'));
-            }
+    function updatePagination() {
+        const dots = document.querySelectorAll('.page-dot');
+        dots.forEach((dot, index) => {
+            dot.classList.toggle('active', index + 1 === currentSection);
         });
-
-        celebration.querySelector('.restart-btn').addEventListener('click', resetGame);
-        
-        celebration.querySelector('.gallery-btn').addEventListener('click', showGallery);
-    }
-
-    async function showGallery() {
-        const galleryRef = storage.ref().child('drawings');
-        try {
-            const result = await galleryRef.listAll();
-            // Implement gallery view here
-        } catch (error) {
-            console.error("Error loading gallery:", error);
-        }
     }
 
     function createSparkles(element) {
@@ -217,6 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function resetGame() {
         isViewingFinal = false;
+        hasFinalized = false;
         currentSection = 1;
         sectionImages.fill(null);
         const overlay = document.querySelector('.celebration-overlay');
@@ -224,7 +229,49 @@ document.addEventListener('DOMContentLoaded', () => {
         canvas.height = originalCanvasHeight;
         setCanvasSize();
         updatePagination();
-        document.querySelector('.next-btn').textContent = 'Siguiente ✨';
+        const nextBtn = document.querySelector('.next-btn');
+        nextBtn.disabled = false;
+        nextBtn.style.opacity = '1';
+        nextBtn.textContent = 'Siguiente ✨';
+    }
+
+    function createMagicalCelebration() {
+        if (hasFinalized) return;
+        hasFinalized = true;
+        
+        const celebration = document.createElement('div');
+        celebration.className = 'celebration-overlay reveal-animation';
+        celebration.innerHTML = `
+            <div class="celebration-message">
+                <h2>¡Tu cadáver exquisito está completo! ✨</h2>
+                <div class="celebration-buttons">
+                    <button class="download-btn tool-button">Descargar</button>
+                    <button class="restart-btn tool-button">Crear otro</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(celebration);
+
+        celebration.querySelector('.download-btn').addEventListener('click', async () => {
+            const imageData = canvas.toDataURL();
+            const downloadURL = await saveToFirebase(imageData);
+            if (downloadURL) {
+                const link = document.createElement('a');
+                link.href = downloadURL;
+                link.download = `cadaver-exquisito-${Date.now()}.png`;
+                link.click();
+                createSparkles(celebration.querySelector('.download-btn'));
+            }
+        });
+
+        celebration.querySelector('.restart-btn').addEventListener('click', resetGame);
+    }
+
+    // Event Listeners
+    if (brushSelector) {
+        brushSelector.addEventListener('change', (e) => {
+            currentBrushStyle = e.target.value;
+        });
     }
 
     colorPicker.addEventListener('input', (e) => {
@@ -249,11 +296,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.querySelector('.next-btn').addEventListener('click', () => {
-        if (currentSection <= totalSections) {
+        if (currentSection <= totalSections && !hasFinalized) {
             sectionImages[currentSection - 1] = canvas.toDataURL();
             
             if (currentSection === totalSections) {
                 showFinalCreation();
+                document.querySelector('.next-btn').disabled = true;
             } else {
                 currentSection++;
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -274,6 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
     canvas.addEventListener('mouseout', stopDrawing);
     window.addEventListener('resize', setCanvasSize);
 
+    // Initialize
     setCanvasSize();
     updatePagination();
 });
