@@ -1,12 +1,3 @@
-// Firebase configuration
-const firebaseConfig = {
-    apiKey: "your-api-key",
-    storageBucket: "your-project.appspot.com",
-    // Add other Firebase config properties
-};
-firebase.initializeApp(firebaseConfig);
-const storage = firebase.storage();
-
 document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('drawingCanvas');
     const ctx = canvas.getContext('2d');
