@@ -23,21 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let originalCanvasHeight;
     let isViewingFinal = false;
 
-    function addPaperTexture() {
-        const texture = new Image();
-        texture.src = 'https://mir-s3-cdn-cf.behance.net/project_modules/1400/a948d849671425.58bb77365e179.jpg'; // Add your texture image path
-        texture.onload = () => {
-            ctx.save();
-            ctx.globalAlpha = 0.1;
-            const pattern = ctx.createPattern(texture, 'repeat');
-            ctx.fillStyle = pattern;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.globalAlpha = 1.0;
-            ctx.restore();
-            drawSectionGuides();
-        };
-    }
-
     function setCanvasSize() {
         const frame = canvas.parentElement;
         const sectionHeight = frame.offsetWidth * 0.4;
@@ -49,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         ctx.lineWidth = penSize;
-        addPaperTexture();
+        drawSectionGuides();
     }
 
     function startDrawing(e) {
@@ -79,14 +64,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const isOnGuide = y < 10 || y > canvas.height - 10;
         
         if (!isOnGuide) {
-            ctx.save();
             ctx.strokeStyle = currentColor;
             ctx.lineWidth = penSize;
             ctx.lineTo(x, y);
             ctx.stroke();
             ctx.beginPath();
             ctx.moveTo(x, y);
-            ctx.restore();
         }
     }
 
@@ -269,7 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelector('.clear-btn').addEventListener('click', () => {
         if (!isViewingFinal) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            addPaperTexture();
+            drawSectionGuides();
             createSparkles(document.querySelector('.clear-btn'));
         }
     });
@@ -283,7 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 currentSection++;
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                addPaperTexture();
+                drawSectionGuides();
                 updatePagination();
                 
                 if (currentSection === totalSections) {
