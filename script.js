@@ -46,7 +46,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const x = (e.clientX - rect.left) * (canvas.width / rect.width);
         const y = (e.clientY - rect.top) * (canvas.height / rect.height);
         
-        // Buffer zone around guides
         const isOnGuide = y < 10 || y > canvas.height - 10;
         
         if (!isOnGuide) {
@@ -61,11 +60,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function drawSectionGuides() {
         ctx.save();
+        
+        // Horizontal dashed guides
         ctx.setLineDash([5, 5]);
         ctx.strokeStyle = '#c4e0ff';
         ctx.lineWidth = 2;
         
-        // Horizontal guides
         ctx.beginPath();
         ctx.moveTo(0, 0);
         ctx.lineTo(canvas.width, 0);
@@ -76,19 +76,27 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.lineTo(canvas.width, canvas.height);
         ctx.stroke();
         
-        // Vertical guides at edges
+        // Vertical solid guides
+        ctx.setLineDash([]); // Remove dash pattern
         ctx.beginPath();
-        ctx.moveTo(20, 0);
+        ctx.moveTo(20, canvas.height - 20);
         ctx.lineTo(20, canvas.height);
         ctx.stroke();
         
         ctx.beginPath();
-        ctx.moveTo(canvas.width - 20, 0);
+        ctx.moveTo(canvas.width - 20, canvas.height - 20);
         ctx.lineTo(canvas.width - 20, canvas.height);
         ctx.stroke();
         
         ctx.restore();
         ctx.lineWidth = penSize;
+    }
+
+    function updatePagination() {
+        const dots = document.querySelectorAll('.page-dot');
+        dots.forEach((dot, index) => {
+            dot.classList.toggle('active', index + 1 === currentSection);
+        });
     }
 
     function showFinalCreation() {
@@ -148,6 +156,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function createSparkles(element) {
+        for (let i = 0; i < 20; i++) {
+            const sparkle = document.createElement('div');
+            sparkle.className = 'sparkle';
+            sparkle.style.left = Math.random() * 100 + '%';
+            sparkle.style.top = Math.random() * 100 + '%';
+            element.appendChild(sparkle);
+            setTimeout(() => sparkle.remove(), 1000);
+        }
+    }
+
     function resetGame() {
         isViewingFinal = false;
         currentSection = 1;
@@ -158,24 +177,6 @@ document.addEventListener('DOMContentLoaded', () => {
         setCanvasSize();
         updatePagination();
         document.querySelector('.next-btn').textContent = 'Siguiente ✨';
-    }
-
-    function updatePagination() {
-        const dots = document.querySelectorAll('.page-dot');
-        dots.forEach((dot, index) => {
-            dot.classList.toggle('active', index + 1 === currentSection);
-        });
-    }
-
-    function createSparkles(element) {
-        for (let i = 0; i < 20; i++) {
-            const sparkle = document.createElement('div');
-            sparkle.className = 'sparkle';
-            sparkle.style.left = Math.random() * 100 + '%';
-            sparkle.style.top = Math.random() * 100 + '%';
-            element.appendChild(sparkle);
-            setTimeout(() => sparkle.remove(), 1000);
-        }
     }
 
     colorPicker.addEventListener('input', (e) => {
