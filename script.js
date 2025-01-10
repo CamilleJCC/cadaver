@@ -261,15 +261,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const drawingTools = document.querySelector('.drawing-tools');
         drawingTools.innerHTML = `
             <div class="color-palette">
-                <input type="color" id="colorPicker" value="#000000">
-                <input type="range" id="penSize" min="1" max="20" value="3" class="pen-size-slider">
-                <select id="brushStyle" class="brush-selector">
-                    <option value="pencil">Lápiz</option>
-                    <option value="marker">Marcador</option>
-                    <option value="crayon">Crayón</option>
-                    <option value="spray">Spray</option>
-                </select>
-            </div>
+    <div><p>Elije un color</p>
+    <input type="color" id="colorPicker" value="#000000"></div><div>
+    <p>Elije un tamaño</p>
+    <input type="range" id="penSize" min="1" max="20" value="3" class="pen-size-slider"></div><div>
+     <p>Elije un pincel</p>
+    <select id="brushStyle" class="brush-selector">
+        <option value="pencil">Lápiz</option>
+        <option value="marker">Marcador</option>
+        <option value="crayon">Crayón</option>
+        <option value="spray">Spray</option>
+    </select></div>
+</div> 
             <button class="clear-btn tool-button">Borrar</button>
             <button class="next-btn tool-button">Siguiente ✨</button>
         `;
