@@ -168,7 +168,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showFinalCreation() {
-        isViewingFinal = true;
+         isViewingFinal = true;
+    canvas.classList.add('final-view');
         const finalCanvas = document.createElement('canvas');
         const finalCtx = finalCanvas.getContext('2d');
         const sectionHeight = canvas.height;
