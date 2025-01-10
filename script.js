@@ -273,8 +273,10 @@ document.addEventListener('DOMContentLoaded', () => {
         <option value="spray">Spray</option>
     </select></div>
 </div> 
-            <button class="clear-btn tool-button">Borrar</button>
-            <button class="next-btn tool-button">Siguiente ✨</button>
+<div>
+       <button class="clear-btn">Borrar</button>
+                <button class="next-btn">Siguiente <img src="assets/flecha.svg" width="11px"></button>
+</div>
         `;
         
         // Reinitialize event listeners
