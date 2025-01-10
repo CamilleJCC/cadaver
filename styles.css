@@ -1,7 +1,25 @@
 @font-face {
     font-family: 'InterTight';
-    src: url('assets/Inter-VariableFont_slnt,wght.ttf') format('truetype');
-    font-weight: 100 900;
+    src: url('assets/InterTight-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'InterTight-Italic';
+    src: url('assets/InterTight-Italic.ttf') format('truetype');
+    font-weight: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'InterTight-Semibold';
+    src: url('assets/InterTight-SemiBold.ttf') format('truetype');
+    font-weight: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'InterTight-SemiboldItalic';
+    src: url('assets/InterTight-SemiBoldItalic.ttf') format('truetype');
+    font-weight: normal;
     font-display: swap;
 }
 
