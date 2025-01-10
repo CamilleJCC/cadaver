@@ -255,8 +255,9 @@ document.addEventListener('DOMContentLoaded', () => {
         hasFinalized = false;
         currentSection = 1;
         sectionImages.fill(null);
-        canvas.height = originalCanvasHeight;
-        
+           // Reset to original dimensions
+    canvas.width = 800;  // Same fixed width
+    canvas.height = 600; // Same fixed height
         // Restore original drawing tools
         const drawingTools = document.querySelector('.drawing-tools');
         drawingTools.innerHTML = `
