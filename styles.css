@@ -148,7 +148,7 @@ p {
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 #drawingCanvas.final-view {
-    height: calc(100vh - 8rem);
+    height: calc(100vh - 8rem)!important;
     object-fit: contain;
     background-size: cover;
 }
