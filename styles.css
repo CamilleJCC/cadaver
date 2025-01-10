@@ -107,9 +107,6 @@ h1 {
     background-image: url('https://img.freepik.com/free-photo/stone-texture_1194-6533.jpg');
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-     flex: 1;
-    max-height: calc(100vh - 8rem);
-    object-fit: contain;
 }
 
 /* Button Styles */
