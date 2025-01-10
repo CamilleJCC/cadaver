@@ -289,7 +289,7 @@ p {
 @media (min-width: 768px) {
     .investigation-container {
         grid-template-columns: 1fr 1fr;
-        padding: clamp(2rem, 6vw, 5rem);
+        padding: 0px 80px;
         align-items: center;
         gap: 4rem;
     }
