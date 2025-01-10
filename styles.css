@@ -175,7 +175,7 @@ p {
     align-items: flex-start;
     gap: 10px;
     padding: 20px 0px;
-    flex-direction: column;
+    flex-direction: row;
 }
 
 #colorPicker {
