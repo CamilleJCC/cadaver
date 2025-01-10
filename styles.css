@@ -109,6 +109,11 @@ h1 {
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
+#drawingCanvas.final-view {
+    height: calc(100vh - 8rem);
+    object-fit: contain;
+    background-size: cover;
+}
 
 /* Button Styles */
 .clear-btn, .next-btn {
