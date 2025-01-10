@@ -171,11 +171,11 @@ p {
 
 /* Color Palette and Tools */
 .color-palette {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+  display: flex;
+    align-items: flex-start;
+    gap: 10px;
     padding: 20px 0px;
-    flex-direction: row;
+    flex-direction: column;
 }
 
 #colorPicker {
