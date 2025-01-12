@@ -205,6 +205,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.querySelector('.restart-btn').addEventListener('click', resetGame);
     }
+    async function saveToGitHub(imageData) {
+    const timestamp = new Date().getTime();
+    const filename = `cadaver_exquisito_${timestamp}.png`;
+    
+    const githubToken = '';
+    const owner = 'camillejcc';  // Your GitHub username
+    const repo = 'cadaver';      // Your repository name
+    const path = `saved-images/${filename}`;
+    
+    // Remove the data:image/png;base64, prefix
+    const base64Data = imageData.split(',')[1];
+    
+    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `token ${githubToken}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            message: `Add new cadaver exquisito: ${filename}`,
+            content: base64Data,
+            branch: 'main'
+        })
+    });
+    
+    return response.ok;
+}
+
 
     function updatePagination() {
         const dots = document.querySelectorAll('.page-dot');
@@ -234,31 +262,32 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         drawSectionGuides();
         
-        const drawingTools = document.querySelector('.drawing-tools');
-        drawingTools.innerHTML = `
-            <div class="color-palette">
-                <div><p>Elije un color</p>
-                    <input type="color" id="colorPicker" value="#000000">
-                </div>
-                <div>
-                    <p>Elije un tamaño</p>
-                    <input type="range" id="penSize" min="1" max="20" value="3" class="pen-size-slider">
-                </div>
-                <div>
-                    <p>Elije un pincel</p>
-                    <select id="brushStyle" class="brush-selector">
-                        <option value="pencil">Lápiz</option>
-                        <option value="marker">Marcador</option>
-                        <option value="crayon">Crayón</option>
-                        <option value="spray">Spray</option>
-                    </select>
-                </div>
+         const drawingTools = document.querySelector('.drawing-tools');
+    drawingTools.innerHTML = `
+        <div class="tools-container">
+            <div class="tool-group">
+                <label>Color</label>
+                <input type="color" id="colorPicker" value="#000000">
             </div>
-            <div>
+            <div class="tool-group">
+                <label>Tamaño</label>
+                <input type="range" id="penSize" min="1" max="20" value="3">
+            </div>
+            <div class="tool-group">
+                <label>Pincel</label>
+                <select id="brushStyle">
+                    <option value="pencil">Lápiz</option>
+                    <option value="marker">Marcador</option>
+                    <option value="crayon">Crayón</option>
+                    <option value="spray">Spray</option>
+                </select>
+            </div>
+            <div class="button-group">
                 <button class="clear-btn">Borrar</button>
-                <button class="next-btn">Siguiente <img src="assets/flecha.svg" width="11px"></button>
+                <button class="next-btn">Siguiente</button>
             </div>
-        `;
+        </div>
+    `;
         
         initializeEventListeners();
         updatePagination();
