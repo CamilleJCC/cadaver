@@ -115,7 +115,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         ctx.restore();
     }
-
     function startDrawing(e) {
         if (isViewingFinal) return;
         isDrawing = true;
@@ -196,49 +195,20 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
 
-       document.querySelector('.download-btn').addEventListener('click', async () => {
-    const imageData = canvas.toDataURL('image/png');
-    
-    // Local download
-    const link = document.createElement('a');
-    link.download = `cadaver_exquisito_${new Date().getTime()}.png`;
-    link.href = imageData;
-    link.click();
-    
-    // Save to GitHub
-    const saved = await saveToGitHub(imageData);
-    if (saved) {
-        console.log('¡Imagen guardada en GitHub!');
-    }
-});
+        document.querySelector('.download-btn').addEventListener('click', async () => {
+            const imageData = canvas.toDataURL('image/png');
+            
+            // Local download
+            const link = document.createElement('a');
+            link.download = `cadaver_exquisito_${new Date().getTime()}.png`;
+            link.href = imageData;
+            link.click();
+        });
 
+        document.querySelector('.restart-btn').addEventListener('click', () => {
+            window.location.reload();
+        });
     }
-  async function saveToGitHub(imageData) {
-    const timestamp = new Date().getTime();
-    const filename = `cadaver_exquisito_${timestamp}.png`;
-    
-    const owner = 'camillejcc';
-    const repo = 'cadaver';
-    const path = `saved-images/${filename}`;
-    
-    const base64Data = imageData.split(',')[1];
-    
-    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
-        method: 'PUT',
-        headers: {
-            'Authorization': `Bearer ${TOKEN}`,
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            message: `Add new cadaver exquisito: ${filename}`,
-            content: base64Data,
-            branch: 'main'
-        })
-    });
-    
-    return response.ok;
-}
-
 
     function updatePagination() {
         const dots = document.querySelectorAll('.page-dot');
@@ -257,11 +227,6 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => sparkle.remove(), 1000);
         }
     }
-
-    document.querySelector('.restart-btn').addEventListener('click', () => {
-    window.location.reload();
-});
-
 
     function initializeEventListeners() {
         const newColorPicker = document.getElementById('colorPicker');
