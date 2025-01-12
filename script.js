@@ -196,31 +196,39 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
 
-        document.querySelector('.download-btn').addEventListener('click', () => {
-            const link = document.createElement('a');
-            link.download = `cadaver_exquisito_${new Date().getTime()}.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-        });
+       document.querySelector('.download-btn').addEventListener('click', async () => {
+    const imageData = canvas.toDataURL('image/png');
+    
+    // Local download
+    const link = document.createElement('a');
+    link.download = `cadaver_exquisito_${new Date().getTime()}.png`;
+    link.href = imageData;
+    link.click();
+    
+    // Save to GitHub
+    const saved = await saveToGitHub(imageData);
+    if (saved) {
+        console.log('¡Imagen guardada en GitHub!');
+    }
+});
+
 
         document.querySelector('.restart-btn').addEventListener('click', resetGame);
     }
-    async function saveToGitHub(imageData) {
+  async function saveToGitHub(imageData) {
     const timestamp = new Date().getTime();
     const filename = `cadaver_exquisito_${timestamp}.png`;
     
-    const githubToken = '';
-    const owner = 'camillejcc';  // Your GitHub username
-    const repo = 'cadaver';      // Your repository name
+    const owner = 'camillejcc';
+    const repo = 'cadaver';
     const path = `saved-images/${filename}`;
     
-    // Remove the data:image/png;base64, prefix
     const base64Data = imageData.split(',')[1];
     
     const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
         method: 'PUT',
         headers: {
-            'Authorization': `token ${githubToken}`,
+            'Authorization': `Bearer ${TOKEN}`,
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
