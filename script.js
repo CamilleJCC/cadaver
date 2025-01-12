@@ -212,8 +212,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-
-        document.querySelector('.restart-btn').addEventListener('click', resetGame);
     }
   async function saveToGitHub(imageData) {
     const timestamp = new Date().getTime();
@@ -260,46 +258,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function resetGame() {
-        isViewingFinal = false;
-        hasFinalized = false;
-        currentSection = 1;
-        sectionImages.fill(null);
-        canvas.height = originalCanvasHeight;
-        canvas.classList.remove('final-view');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        drawSectionGuides();
-        
-         const drawingTools = document.querySelector('.drawing-tools');
-    drawingTools.innerHTML = `
-        <div class="tools-container">
-            <div class="tool-group">
-                <label>Color</label>
-                <input type="color" id="colorPicker" value="#000000">
-            </div>
-            <div class="tool-group">
-                <label>Tamaño</label>
-                <input type="range" id="penSize" min="1" max="20" value="3">
-            </div>
-            <div class="tool-group">
-                <label>Pincel</label>
-                <select id="brushStyle">
-                    <option value="pencil">Lápiz</option>
-                    <option value="marker">Marcador</option>
-                    <option value="crayon">Crayón</option>
-                    <option value="spray">Spray</option>
-                </select>
-            </div>
-            <div class="button-group">
-                <button class="clear-btn">Borrar</button>
-                <button class="next-btn">Siguiente</button>
-            </div>
-        </div>
-    `;
-        
-        initializeEventListeners();
-        updatePagination();
-    }
+    document.querySelector('.restart-btn').addEventListener('click', () => {
+    window.location.reload();
+});
+
 
     function initializeEventListeners() {
         const newColorPicker = document.getElementById('colorPicker');
