@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentColor = colorPicker.value;
     let currentSection = 1;
     let penSize = penSizeSlider ? penSizeSlider.value : 5;
+    let currentBrushStyle = 'pencil';
     const totalSections = 3;
     const sectionImages = new Array(totalSections).fill(null);
     let originalCanvasHeight;
@@ -72,7 +73,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     };
-
     function setCanvasSize() {
         const frame = canvas.parentElement;
         const sectionHeight = frame.offsetWidth * 0.5;
@@ -88,7 +88,6 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.strokeStyle = '#c4e0ff';
         ctx.lineWidth = 2;
         
-        // Horizontal guides
         ctx.beginPath();
         ctx.moveTo(0, 0);
         ctx.lineTo(canvas.width, 0);
@@ -99,7 +98,6 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.lineTo(canvas.width, canvas.height);
         ctx.stroke();
         
-        // Vertical guides
         ctx.setLineDash([]);
         ctx.beginPath();
         ctx.moveTo(20, 0);
@@ -114,6 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         ctx.restore();
     }
+
     function startDrawing(e) {
         if (isViewingFinal) return;
         isDrawing = true;
@@ -187,16 +186,17 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const drawingTools = document.querySelector('.drawing-tools');
         drawingTools.innerHTML = `
-    <div class="celebration-message">
-        <h2>¡Tu cadáver exquisito está completo! ✨</h2>
-        <p>¡Has creado una obra de arte única!</p>
-    </div>
-    <div class="celebration-buttons">
-        <button class="download-btn tool-button">Descargar</button>
-        <button class="restart-btn tool-button">Crear otro</button>
-    </div>
-`;
-      document.querySelector('.download-btn').addEventListener('click', async () => {
+            <div class="celebration-message">
+                <h2>¡Tu cadáver exquisito está completo! ✨</h2>
+                <p>¡Has creado una obra de arte única!</p>
+            </div>
+            <div class="celebration-buttons">
+                <button class="download-btn tool-button">Descargar</button>
+                <button class="restart-btn tool-button">Crear otro</button>
+            </div>
+        `;
+
+        document.querySelector('.download-btn').addEventListener('click', async () => {
             const imageData = canvas.toDataURL('image/png');
             
             // Local download
@@ -204,14 +204,57 @@ document.addEventListener('DOMContentLoaded', () => {
             link.download = `cadaver_exquisito_${new Date().getTime()}.png`;
             link.href = imageData;
             link.click();
+            
+            // GitHub save
+            try {
+                const saved = await saveToGitHub(imageData);
+                if (saved) {
+                    console.log('¡Imagen guardada en GitHub!');
+                    const downloadBtn = document.querySelector('.download-btn');
+                    downloadBtn.textContent = '¡Guardado! ✨';
+                    setTimeout(() => {
+                        downloadBtn.textContent = 'Descargar';
+                    }, 2000);
+                }
+            } catch (error) {
+                console.error('Error saving to GitHub:', error);
+            }
         });
 
         document.querySelector('.restart-btn').addEventListener('click', () => {
             window.location.reload();
         });
     }
-    let currentBrushStyle = 'pencil';
-    
+
+    async function saveToGitHub(imageData) {
+        const timestamp = new Date().getTime();
+        const filename = `cadaver_exquisito_${timestamp}.png`;
+        
+        const owner = 'camillejcc';
+        const repo = 'cadaver';
+        const path = `saved-images/${filename}`;
+        
+        const base64Data = imageData.split(',')[1];
+        
+        try {
+            const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${TOKEN}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: `Add new cadaver exquisito: ${filename}`,
+                    content: base64Data,
+                    branch: 'main'
+                })
+            });
+            return response.ok;
+        } catch (error) {
+            console.log('Error saving to GitHub:', error);
+            return false;
+        }
+    }
 
     function updatePagination() {
         const dots = document.querySelectorAll('.page-dot');
