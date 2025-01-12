@@ -270,41 +270,53 @@ document.querySelector('.descargar-btn').addEventListener('click', downloadImage
         }
     }
 
-    function resetGame() {
-        isViewingFinal = false;
-        hasFinalized = false;
-        currentSection = 1;
-        sectionImages.fill(null);
-           // Reset to original dimensions
-    canvas.width = 800;  // Same fixed width
-    canvas.height = 600; // Same fixed height
-        // Restore original drawing tools
-        const drawingTools = document.querySelector('.drawing-tools');
-        drawingTools.innerHTML = `
-            <div class="color-palette">
-    <div><p>Elije un color</p>
-    <input type="color" id="colorPicker" value="#000000"></div><div>
-    <p>Elije un tamaño</p>
-    <input type="range" id="penSize" min="1" max="20" value="3" class="pen-size-slider"></div><div>
-     <p>Elije un pincel</p>
-    <select id="brushStyle" class="brush-selector">
-        <option value="pencil">Lápiz</option>
-        <option value="marker">Marcador</option>
-        <option value="crayon">Crayón</option>
-        <option value="spray">Spray</option>
-    </select></div>
-</div> 
-<div>
-       <button class="clear-btn">Borrar</button>
-                <button class="next-btn">Siguiente <img src="assets/flecha.svg" width="11px"></button>
-</div>
-        `;
-        
-        // Reinitialize event listeners
-        initializeEventListeners();
-        setCanvasSize();
-        updatePagination();
-    }
+   function resetGame() {
+    isViewingFinal = false;
+    hasFinalized = false;
+    currentSection = 1;
+    sectionImages.fill(null);
+    
+    // Reset canvas to original size
+    canvas.height = originalCanvasHeight;
+    canvas.classList.remove('final-view');
+    
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawSectionGuides();
+    
+    // Restore original drawing tools
+    const drawingTools = document.querySelector('.drawing-tools');
+    drawingTools.innerHTML = `
+        <div class="color-palette">
+            <div class="tool-group">
+                <p>Color</p>
+                <input type="color" id="colorPicker" value="#000000">
+            </div>
+            <div class="tool-group">
+                <p>Tamaño</p>
+                <input type="range" id="penSize" min="1" max="20" value="3" class="pen-size-slider">
+            </div>
+            <div class="tool-group">
+                <p>Pincel</p>
+                <select id="brushStyle" class="brush-selector">
+                    <option value="pencil">Lápiz</option>
+                    <option value="marker">Marcador</option>
+                    <option value="crayon">Crayón</option>
+                    <option value="spray">Spray</option>
+                </select>
+            </div>
+        </div> 
+        <div class="button-group">
+            <button class="clear-btn">Borrar</button>
+            <button class="next-btn">Siguiente <img src="assets/flecha.svg" width="11"></button>
+        </div>
+    `;
+    
+    // Reinitialize event listeners
+    initializeEventListeners();
+    updatePagination();
+}
+
 
     function initializeEventListeners() {
         const newColorPicker = document.getElementById('colorPicker');
