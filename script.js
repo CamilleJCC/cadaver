@@ -1,10 +1,3 @@
-/* Firebase configuration
-const firebaseConfig = {
-    apiKey: "your-api-key",
-    storageBucket: "your-project.appspot.com",
-};
-firebase.initializeApp(firebaseConfig);
-const storage = firebase.storage(); */
 
 document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('drawingCanvas');
@@ -155,17 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    async function saveToFirebase(imageData) {
-        const drawingRef = storage.ref().child(`drawings/${Date.now()}.png`);
-        try {
-            const snapshot = await drawingRef.putString(imageData, 'data_url');
-            const downloadURL = await snapshot.ref.getDownloadURL();
-            return downloadURL;
-        } catch (error) {
-            console.error("Error saving drawing:", error);
-            return null;
-        }
-    }
+
 
     function showFinalCreation() {
          isViewingFinal = true;
@@ -216,21 +199,58 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
 
-        // Add event listeners to new buttons
-        drawingTools.querySelector('.download-btn').addEventListener('click', async () => {
-            const imageData = canvas.toDataURL();
-            const downloadURL = await saveToFirebase(imageData);
-            if (downloadURL) {
-                const link = document.createElement('a');
-                link.href = downloadURL;
-                link.download = `cadaver-exquisito-${Date.now()}.png`;
-                link.click();
-                createSparkles(drawingTools.querySelector('.download-btn'));
-            }
-        });
+ async function saveAndDownloadImage() {
+    const canvas = document.querySelector('canvas');
+    const imageData = canvas.toDataURL('image/png');
+    const timestamp = new Date().getTime();
+    const filename = `cadaver_exquisito_${timestamp}.png`;
 
-        drawingTools.querySelector('.restart-btn').addEventListener('click', resetGame);
+    // Local download
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = imageData;
+    link.click();
+
+    // GitHub save using GitHub API
+    const githubToken = 'YOUR_GITHUB_TOKEN';
+    const owner = 'YOUR_GITHUB_USERNAME';
+    const repo = 'YOUR_REPO_NAME';
+    const path = `saved-images/${filename}`;
+    
+    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `token ${githubToken}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            message: `Add new cadaver exquisito: ${filename}`,
+            content: imageData.split(',')[1], // Remove data:image/png;base64, prefix
+            branch: 'main'
+        })
+    });
+
+    if (response.ok) {
+        console.log('Image saved to GitHub successfully!');
     }
+}
+
+// Add event listener
+document.querySelector('.descargar-btn').addEventListener('click', saveAndDownloadImage);
+
+function downloadImage() {
+    const canvas = document.querySelector('canvas');
+    const imageData = canvas.toDataURL('image/png');
+    
+    // Create download link
+    const link = document.createElement('a');
+    link.download = `cadaver_exquisito_${new Date().getTime()}.png`;
+    link.href = imageData;
+    link.click();
+}
+
+// Add event listener to your download button
+document.querySelector('.descargar-btn').addEventListener('click', downloadImage);
 
     function updatePagination() {
         const dots = document.querySelectorAll('.page-dot');
