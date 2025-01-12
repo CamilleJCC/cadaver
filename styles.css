@@ -139,14 +139,12 @@ p {
 /* Canvas */
 #drawingCanvas {
     width: 100%;
-    height: 600px;
+    height: auto;
     background-color: white;
-    background-image: url('https://img.freepik.com/free-photo/stone-texture_1194-6533.jpg');
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    border: 1px solid var(--gradient-start);
-    transition: all 0.3s ease;
 }
+
 
 #drawingCanvas.final-view {
     height: calc(100vh - 8rem)!important;
