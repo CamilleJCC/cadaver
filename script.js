@@ -9,7 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentColor = colorPicker.value;
     let currentSection = 1;
     let penSize = penSizeSlider ? penSizeSlider.value : 5;
-    let currentBrushStyle = 'pencil';
     const totalSections = 3;
     const sectionImages = new Array(totalSections).fill(null);
     let originalCanvasHeight;
@@ -188,14 +187,16 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const drawingTools = document.querySelector('.drawing-tools');
         drawingTools.innerHTML = `
-            <h2>¡Tu cadáver exquisito está completo! ✨</h2>
-            <div class="celebration-buttons">
-                <button class="download-btn tool-button">Descargar</button>
-                <button class="restart-btn tool-button">Crear otro</button>
-            </div>
-        `;
-
-        document.querySelector('.download-btn').addEventListener('click', async () => {
+    <div class="celebration-message">
+        <h2>¡Tu cadáver exquisito está completo! ✨</h2>
+        <p>¡Has creado una obra de arte única!</p>
+    </div>
+    <div class="celebration-buttons">
+        <button class="download-btn tool-button">Descargar</button>
+        <button class="restart-btn tool-button">Crear otro</button>
+    </div>
+`;
+      document.querySelector('.download-btn').addEventListener('click', async () => {
             const imageData = canvas.toDataURL('image/png');
             
             // Local download
@@ -209,6 +210,8 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.reload();
         });
     }
+    let currentBrushStyle = 'pencil';
+    
 
     function updatePagination() {
         const dots = document.querySelectorAll('.page-dot');
