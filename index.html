@@ -10,38 +10,43 @@
     <div class="investigation-container">
         <div class="left-col">
             <h1>DIBUJOS EN EQUIPO</h1>
-            <h2>¡Esta obra es como un rompecabezas!</h2><br>
-            <p>¿Crees que la pintura la  hizo un solo artista? ¿O será obra de varios? ¿Por qué lo piensas?</p>
+            <h2>¡Esta obra es como un rompecabezas!</h2>
+            <p>¿Crees que la pintura la hizo un solo artista? ¿O será obra de varios? ¿Por qué lo piensas?</p>
             
             <div class="drawing-tools">
-<div class="color-palette">
-    <div><p>Elije un color</p>
-    <input type="color" id="colorPicker" value="#000000"></div><div>
-    <p>Elije un tamaño</p>
-    <input type="range" id="penSize" min="1" max="20" value="3" class="pen-size-slider"></div><div>
-     <p>Elije un pincel</p>
-    <select id="brushStyle" class="brush-selector">
-        <option value="pencil">Lápiz</option>
-        <option value="marker">Marcador</option>
-        <option value="crayon">Crayón</option>
-        <option value="spray">Spray</option>
-    </select></div>
-</div> 
-<div>
-       <button class="clear-btn">Borrar</button>
-                <button class="next-btn">Siguiente <img src="assets/flecha.svg" width="11px"></button>
-</div>
+                <div class="color-palette">
+                    <div class="tool-group">
+                        <p>Elije un color</p>
+                        <input type="color" id="colorPicker" value="#000000">
+                    </div>
+                    <div class="tool-group">
+                        <p>Elije un tamaño</p>
+                        <input type="range" id="penSize" min="1" max="20" value="3" class="pen-size-slider">
+                    </div>
+                    <div class="tool-group">
+                        <p>Elije un pincel</p>
+                        <select id="brushStyle" class="brush-selector">
+                            <option value="pencil">Lápiz</option>
+                            <option value="marker">Marcador</option>
+                            <option value="crayon">Crayón</option>
+                            <option value="spray">Spray</option>
+                        </select>
+                    </div>
+                </div> 
+                <div class="button-group">
+                    <button class="clear-btn">Borrar</button>
+                    <button class="next-btn">Siguiente <img src="assets/flecha.svg" width="11" alt="flecha"></button>
+                </div>
             </div>
         </div>
 
         <div class="artwork-frame">
             <canvas id="drawingCanvas"></canvas>
             <div class="pagination">
-    <div class="page-dot active"></div>
-    <div class="page-dot"></div>
-    <div class="page-dot"></div>
-</div>
-
+                <div class="page-dot active"></div>
+                <div class="page-dot"></div>
+                <div class="page-dot"></div>
+            </div>
         </div>
     </div>
     <script src="script.js"></script>
