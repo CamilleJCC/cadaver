@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('drawingCanvas');
     const ctx = canvas.getContext('2d');
@@ -20,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const brushStyles = {
         pencil: {
             setup(ctx) {
+                ctx.globalAlpha = 1;
                 ctx.lineWidth = penSize;
                 ctx.lineCap = 'round';
                 ctx.lineJoin = 'round';
@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         marker: {
             setup(ctx) {
+                ctx.globalAlpha = 1;
                 ctx.lineWidth = penSize * 2;
                 ctx.lineCap = 'square';
                 ctx.lineJoin = 'miter';
@@ -57,6 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
         spray: {
             setup(ctx) {
                 ctx.fillStyle = currentColor;
+                ctx.globalAlpha = 1;
             },
             draw(ctx, x, y) {
                 for(let i = 0; i < 20; i++) {
@@ -78,8 +80,6 @@ document.addEventListener('DOMContentLoaded', () => {
         canvas.width = frame.offsetWidth;
         canvas.height = sectionHeight;
         originalCanvasHeight = canvas.height;
-        canvas.style.width = '100%';
-        canvas.style.height = 'auto';
         drawSectionGuides();
     }
 
@@ -148,11 +148,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-
-
     function showFinalCreation() {
-         isViewingFinal = true;
-    canvas.classList.add('final-view');
+        isViewingFinal = true;
+        canvas.classList.add('final-view');
         const finalCanvas = document.createElement('canvas');
         const finalCtx = finalCanvas.getContext('2d');
         const sectionHeight = canvas.height;
@@ -189,7 +187,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (hasFinalized) return;
         hasFinalized = true;
         
-        // Replace the drawing tools content
         const drawingTools = document.querySelector('.drawing-tools');
         drawingTools.innerHTML = `
             <h2>¡Tu cadáver exquisito está completo! ✨</h2>
@@ -199,58 +196,15 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
 
- async function saveAndDownloadImage() {
-    const canvas = document.querySelector('canvas');
-    const imageData = canvas.toDataURL('image/png');
-    const timestamp = new Date().getTime();
-    const filename = `cadaver_exquisito_${timestamp}.png`;
+        document.querySelector('.download-btn').addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.download = `cadaver_exquisito_${new Date().getTime()}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
 
-    // Local download
-    const link = document.createElement('a');
-    link.download = filename;
-    link.href = imageData;
-    link.click();
-
-    // GitHub save using GitHub API
-    const githubToken = 'YOUR_GITHUB_TOKEN';
-    const owner = 'YOUR_GITHUB_USERNAME';
-    const repo = 'YOUR_REPO_NAME';
-    const path = `saved-images/${filename}`;
-    
-    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
-        method: 'PUT',
-        headers: {
-            'Authorization': `token ${githubToken}`,
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            message: `Add new cadaver exquisito: ${filename}`,
-            content: imageData.split(',')[1], // Remove data:image/png;base64, prefix
-            branch: 'main'
-        })
-    });
-
-    if (response.ok) {
-        console.log('Image saved to GitHub successfully!');
+        document.querySelector('.restart-btn').addEventListener('click', resetGame);
     }
-}
-
-// Add event listener
-document.querySelector('.descargar-btn').addEventListener('click', saveAndDownloadImage);
-
-function downloadImage() {
-    const canvas = document.querySelector('canvas');
-    const imageData = canvas.toDataURL('image/png');
-    
-    // Create download link
-    const link = document.createElement('a');
-    link.download = `cadaver_exquisito_${new Date().getTime()}.png`;
-    link.href = imageData;
-    link.click();
-}
-
-// Add event listener to your download button
-document.querySelector('.descargar-btn').addEventListener('click', downloadImage);
 
     function updatePagination() {
         const dots = document.querySelectorAll('.page-dot');
@@ -270,53 +224,45 @@ document.querySelector('.descargar-btn').addEventListener('click', downloadImage
         }
     }
 
-   function resetGame() {
-    isViewingFinal = false;
-    hasFinalized = false;
-    currentSection = 1;
-    sectionImages.fill(null);
-    
-    // Reset canvas to original size
-    canvas.height = originalCanvasHeight;
-    canvas.classList.remove('final-view');
-    
-    // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawSectionGuides();
-    
-    // Restore original drawing tools
-    const drawingTools = document.querySelector('.drawing-tools');
-    drawingTools.innerHTML = `
-        <div class="color-palette">
-            <div class="tool-group">
-                <p>Color</p>
-                <input type="color" id="colorPicker" value="#000000">
+    function resetGame() {
+        isViewingFinal = false;
+        hasFinalized = false;
+        currentSection = 1;
+        sectionImages.fill(null);
+        canvas.height = originalCanvasHeight;
+        canvas.classList.remove('final-view');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawSectionGuides();
+        
+        const drawingTools = document.querySelector('.drawing-tools');
+        drawingTools.innerHTML = `
+            <div class="color-palette">
+                <div><p>Elije un color</p>
+                    <input type="color" id="colorPicker" value="#000000">
+                </div>
+                <div>
+                    <p>Elije un tamaño</p>
+                    <input type="range" id="penSize" min="1" max="20" value="3" class="pen-size-slider">
+                </div>
+                <div>
+                    <p>Elije un pincel</p>
+                    <select id="brushStyle" class="brush-selector">
+                        <option value="pencil">Lápiz</option>
+                        <option value="marker">Marcador</option>
+                        <option value="crayon">Crayón</option>
+                        <option value="spray">Spray</option>
+                    </select>
+                </div>
             </div>
-            <div class="tool-group">
-                <p>Tamaño</p>
-                <input type="range" id="penSize" min="1" max="20" value="3" class="pen-size-slider">
+            <div>
+                <button class="clear-btn">Borrar</button>
+                <button class="next-btn">Siguiente <img src="assets/flecha.svg" width="11px"></button>
             </div>
-            <div class="tool-group">
-                <p>Pincel</p>
-                <select id="brushStyle" class="brush-selector">
-                    <option value="pencil">Lápiz</option>
-                    <option value="marker">Marcador</option>
-                    <option value="crayon">Crayón</option>
-                    <option value="spray">Spray</option>
-                </select>
-            </div>
-        </div> 
-        <div class="button-group">
-            <button class="clear-btn">Borrar</button>
-            <button class="next-btn">Siguiente <img src="assets/flecha.svg" width="11"></button>
-        </div>
-    `;
-    
-    // Reinitialize event listeners
-    initializeEventListeners();
-    updatePagination();
-}
-
+        `;
+        
+        initializeEventListeners();
+        updatePagination();
+    }
 
     function initializeEventListeners() {
         const newColorPicker = document.getElementById('colorPicker');
