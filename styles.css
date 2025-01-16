@@ -248,9 +248,9 @@ p {
 @media (min-width: 768px) {
     .investigation-container {
         grid-template-columns: 1fr 1fr;
-        padding: 0px 80px;
+        padding: 0px 1rem;
         align-items: center;
-        gap: 4rem;
+        gap: 1rem;
     }
 
     .left-col {
