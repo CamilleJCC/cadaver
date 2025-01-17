@@ -120,7 +120,7 @@ p {
 
 /* Buttons */
 .tool-button, .clear-btn, .next-btn {
-    background: #b5f0de;
+    background: #c4e0ff;
     border: none;
     padding: 1rem 2rem;
     border-radius: 2rem;
@@ -134,7 +134,7 @@ p {
 .tool-button:hover, .clear-btn:hover, .next-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    background: #c4e0ff;
+    background:#b5f0de ;
 }
 
 /* Canvas */
@@ -220,7 +220,7 @@ p {
     animation: sparkle 0.8s ease-in-out forwards;
 }
 .celebration-message {
-   background: linear-gradient(135deg, #c4e0ff, #b5f0de);
+   background: #b5f0de;
     padding: 20px;
     border-radius: 15px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
