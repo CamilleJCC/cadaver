@@ -49,7 +49,7 @@
     min-height: 100vh;
     display: grid;
     grid-template-columns: 1fr;
-    gap: 2rem;
+    gap: 4rem;
     background: var(--background-color);
     padding: clamp(1rem, 3vw, 2rem);
     color: var(--secondary-color);
@@ -249,7 +249,7 @@ p {
         grid-template-columns: 1fr 1fr;
         padding: 0px 1rem;
         align-items: center;
-        gap: 1rem;
+        gap: 4rem;
     }
 
     .left-col {
