@@ -71,7 +71,7 @@
 .italic { font-family: 'InterTight-Italic'; }
 
 h1 {
-    font-size: clamp(2rem, 5.4em, 4.1rem);
+    font-size: clamp(2rem, 3em, 4.1rem);
     color: var(--primary-color);
     text-align: left;
     line-height: 1.02;
