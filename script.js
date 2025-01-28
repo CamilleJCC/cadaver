@@ -113,37 +113,44 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.restore();
     }
 
-    function startDrawing(e) {
-        if (isViewingFinal) return;
-        isDrawing = true;
-        const rect = canvas.getBoundingClientRect();
-        const x = (e.clientX - rect.left) * (canvas.width / rect.width);
-        const y = (e.clientY - rect.top) * (canvas.height / rect.height);
-        
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-        brushStyles[currentBrushStyle].setup(ctx);
+   function startDrawing(e) {
+    if (isViewingFinal) return;
+    isDrawing = true;
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.clientX || e.touches[0].clientX;
+    const clientY = e.clientY || e.touches[0].clientY;
+    const x = (clientX - rect.left) * (canvas.width / rect.width);
+    const y = (clientY - rect.top) * (canvas.height / rect.height);
+    
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    brushStyles[currentBrushStyle].setup(ctx);
+}
+
+function draw(e) {
+    if (!isDrawing || isViewingFinal) return;
+    
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.clientX || e.touches[0].clientX;
+    const clientY = e.clientY || e.touches[0].clientY;
+    const x = (clientX - rect.left) * (canvas.width / rect.width);
+    const y = (clientY - rect.top) * (canvas.height / rect.height);
+    
+    const isOnGuide = y < 10 || y > canvas.height - 10;
+    
+    if (!isOnGuide) {
+        ctx.strokeStyle = currentColor;
+        brushStyles[currentBrushStyle].draw(ctx, x, y);
     }
+}
+
 
     function stopDrawing() {
         isDrawing = false;
         ctx.beginPath();
     }
 
-    function draw(e) {
-        if (!isDrawing || isViewingFinal) return;
-        
-        const rect = canvas.getBoundingClientRect();
-        const x = (e.clientX - rect.left) * (canvas.width / rect.width);
-        const y = (e.clientY - rect.top) * (canvas.height / rect.height);
-        
-        const isOnGuide = y < 10 || y > canvas.height - 10;
-        
-        if (!isOnGuide) {
-            ctx.strokeStyle = currentColor;
-            brushStyles[currentBrushStyle].draw(ctx, x, y);
-        }
-    }
+    
 
     function showFinalCreation() {
         isViewingFinal = true;
@@ -319,6 +326,21 @@ document.addEventListener('DOMContentLoaded', () => {
     canvas.addEventListener('mouseup', stopDrawing);
     canvas.addEventListener('mouseout', stopDrawing);
     window.addEventListener('resize', setCanvasSize);
+
+    canvas.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    startDrawing(touch);
+});
+
+canvas.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    draw(touch);
+});
+
+canvas.addEventListener('touchend', stopDrawing);
+canvas.addEventListener('touchcancel', stopDrawing);
 
     // Initialize
     initializeEventListeners();
