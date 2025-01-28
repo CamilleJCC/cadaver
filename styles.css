@@ -173,7 +173,7 @@ p {
 }
 
 .pen-size-slider {
-width: 150px;
+width: fit-content;
     height: 7px;
     appearance: none;
     border-radius: 5px;
