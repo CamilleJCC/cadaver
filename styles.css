@@ -242,7 +242,7 @@ width: fit-content;
     100% { transform: scale(1); opacity: 1; }
 }
 .tooltip-container {
-     position: relative;
+    position: relative;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -256,12 +256,11 @@ width: fit-content;
     background: #c4e0ff;
     border-radius: 100px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    width: max-content;
     right: 38px;
     top: -4px;
     z-index: 1000;
     font-size: 1rem;
-    padding: 0.6rem 1.3rem;
+    padding: 0.9rem 2rem;
 }
 
 .plus-icon {
