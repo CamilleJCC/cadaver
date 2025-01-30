@@ -241,6 +241,28 @@ width: fit-content;
     0% { transform: scale(0.8); opacity: 0; }
     100% { transform: scale(1); opacity: 1; }
 }
+.tooltip-container {
+     position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 2rem;
+    justify-content: flex-end;
+}
+.tooltip-text {
+ position: absolute;
+    visibility: hidden;
+    display: none;
+    background: #c4e0ff;
+    border-radius: 100px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    width: max-content;
+    right: 38px;
+    top: -4px;
+    z-index: 1000;
+    font-size: 1rem;
+    padding: 0.6rem 1.3rem;
+}
 
 
 /* Responsive */
@@ -262,4 +284,22 @@ width: fit-content;
         margin: 0;
         max-width: 100%;
     }
+}
+@media (max-width:1000px){
+    h2 {
+        width: 95%;
+        padding: 0px;
+    }
+
+    p {
+        padding-right: 0px;
+    }
+    
+    .tooltip-text {
+    border-radius: 20px;
+    width: 100%;
+    top: 38px;
+    right: 0px;
+    padding: 0.9rem 2rem;
+}
 }
