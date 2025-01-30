@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const colorPicker = document.getElementById('colorPicker');
     const penSizeSlider = document.getElementById('penSize');
     const brushSelector = document.getElementById('brushStyle');
+    const tooltipText = document.querySelector('.tooltip-text');
+    const plusPopup = document.getElementById('tooltipText');
     
     let isDrawing = false;
     let currentColor = colorPicker.value;
@@ -341,6 +343,16 @@ canvas.addEventListener('touchmove', (e) => {
 
 canvas.addEventListener('touchend', stopDrawing);
 canvas.addEventListener('touchcancel', stopDrawing);
+
+      plusBtn.addEventListener('click', () => {
+        if (tooltipText.style.visibility === 'visible') {
+            tooltipText.style.visibility = 'hidden';
+            tooltipText.style.display = 'none';
+        } else {
+            tooltipText.style.visibility = 'visible';
+            tooltipText.style.display = 'block';
+        }
+    });
 
     // Initialize
     initializeEventListeners();
