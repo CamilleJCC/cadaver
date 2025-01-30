@@ -264,6 +264,50 @@ width: fit-content;
     padding: 0.6rem 1.3rem;
 }
 
+.plus-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.plus-icon::before,
+.plus-icon::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 2px;
+    background: white;
+    border-radius: 1px;
+    transition: all 0.3s ease;
+}
+
+.plus-icon::before {
+    transform: rotate(90deg);
+}
+
+.plus-icon::after {
+    transform: rotate(0deg);
+}
+
+.plus-icon:hover {
+    background: var(--gradient-end);
+    transform: rotate(180deg);
+}
+
+.plus-icon:hover::before,
+.plus-icon:hover::after {
+    width: 14px;
+}
+
+
 
 /* Responsive */
 @media (min-width: 768px) {
