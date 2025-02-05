@@ -349,8 +349,8 @@ canvas.addEventListener('touchend', stopDrawing);
 canvas.addEventListener('touchcancel', stopDrawing);
 
       plusBtn.addEventListener('click', () => {
-      overlay.style.display = 'block';
-    bioPopup.style.display = 'block';
+       overlay.style.display = 'block';
+    questionPopup.style.display = 'block';
     });
 
     closeButtons.forEach(button => {
