@@ -393,6 +393,10 @@ font-size: 1.3rem;
     width: 72%;
     text-align: center;
 }
+.popup img {
+    width:83%;
+    padding-bottom:28px;
+}
 /* Responsive */
 @media (min-width: 768px) {
     .investigation-container {
