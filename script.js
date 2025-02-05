@@ -6,6 +6,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const brushSelector = document.getElementById('brushStyle');
     const tooltipText = document.querySelector('.tooltip-text');
     const plusPopup = document.getElementById('tooltipText');
+    const questionPopup = document.getElementById('questionPopup');
+    const overlay = document.getElementById('overlay');
+    const closeButtons = document.querySelectorAll('.close-btn');
+    const bioPopup = document.getElementById('bioPopup');
     
     let isDrawing = false;
     let currentColor = colorPicker.value;
@@ -345,14 +349,42 @@ canvas.addEventListener('touchend', stopDrawing);
 canvas.addEventListener('touchcancel', stopDrawing);
 
       plusBtn.addEventListener('click', () => {
-        if (tooltipText.style.visibility === 'visible') {
-            tooltipText.style.visibility = 'hidden';
-            tooltipText.style.display = 'none';
+      overlay.style.display = 'block';
+    bioPopup.style.display = 'block';
+    });
+
+    closeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const popup = button.closest('.popup');
+            if (popup.classList.contains('transport-popup')) {
+                popup.classList.remove('show');
+                setTimeout(() => {
+                    popup.style.display = 'none';
+                    overlay.style.display = 'none';
+                }, 500);
+            } else {
+                overlay.style.display = 'none';
+                popup.style.display = 'none';
+            }
+        });
+    });
+
+    // Close on overlay click
+ closeButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        const popup = button.closest('.popup');
+        if (popup.classList.contains('transport-popup')) {
+            popup.classList.remove('show');
+            setTimeout(() => {
+                popup.style.display = 'none';
+                overlay.style.display = 'none';
+            }, 500);
         } else {
-            tooltipText.style.visibility = 'visible';
-            tooltipText.style.display = 'block';
+            overlay.style.display = 'none';
+            popup.style.display = 'none';
         }
     });
+});
 
     // Initialize
     initializeEventListeners();
