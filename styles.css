@@ -426,7 +426,15 @@ font-size: 1.3rem;
     p {
         padding-right: 0px;
     }
-    
+    #questionPopup {
+    width: 92%;
+}
+    #questionPopup img {
+        width:100%;
+    }
+    .popup{
+        padding: 61px 20px 20px 20px;
+    }
     .tooltip-text {
     border-radius: 20px;
     width: 100%;
