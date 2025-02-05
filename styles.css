@@ -390,7 +390,8 @@ font-size: 1.3rem;
 }
 #questionPopup {
     background:var(--background-color);
-    width:35%;
+    width: 72%;
+    text-align: center;
 }
 /* Responsive */
 @media (min-width: 768px) {
