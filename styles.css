@@ -275,6 +275,7 @@ width: fit-content;
     justify-content: center;
     position: relative;
     transition: all 0.3s ease;
+    margin-top: -4px;
 }
 
 .plus-icon::before,
