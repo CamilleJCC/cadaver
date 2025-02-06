@@ -231,9 +231,12 @@ width: fit-content;
 
 .celebration-message p {
     padding-right: 0px;
+    text-align: left;
 }
 .celebration-message h2 {
     padding-right: 0px;
+    text-align: left;
+    padding-bottom: 11px;
 }
 
 
